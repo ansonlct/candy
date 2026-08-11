@@ -2,8 +2,11 @@
 <html lang="zh-HK">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#8e5bff" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="format-detection" content="telephone=no" />
 <title>糖果星球 Match‑3</title>
 <style>
 :root{
@@ -11,6 +14,9 @@
   --pink:#ff5fa2;--gold:#ffbf2f;--panel:rgba(255,255,255,.90);--shadow:0 12px 30px rgba(76,43,120,.18);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body,.app{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text}
+html{touch-action:manipulation}
 body{margin:0;font-family:ui-rounded,"SF Pro Rounded","PingFang HK","Noto Sans TC",system-ui,sans-serif;color:var(--ink);background:linear-gradient(160deg,var(--bg1),var(--bg2));min-height:100dvh;overflow-x:hidden}
 button,input{font:inherit}.hidden{display:none!important}
 .app{width:min(100%,620px);min-height:100dvh;margin:auto;position:relative;padding-bottom:28px}
@@ -30,18 +36,27 @@ button,input{font:inherit}.hidden{display:none!important}
 .gameScreen{padding:4px 10px 20px}.gameHeader{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;padding:6px 4px 10px}.levelName{text-align:center}.levelName b{display:block;font-size:16px}.levelName small{opacity:.65}
 .status{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}.stat{background:white;border-radius:16px;padding:8px;text-align:center;box-shadow:0 5px 16px rgba(70,45,108,.1)}.stat small{display:block;opacity:.62;font-weight:800}.stat b{font-size:17px}
 .progress{height:11px;border-radius:999px;background:#eae3f4;overflow:hidden;margin:1px 0 10px}.progress>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff65a6,#ffc33c);transition:width .25s}
-.boardWrap{padding:8px;border-radius:24px;background:linear-gradient(145deg,rgba(255,255,255,.86),rgba(255,255,255,.62));box-shadow:0 10px 26px rgba(68,40,107,.14);touch-action:none}.board{display:grid;gap:4px;aspect-ratio:1;position:relative}.cell{position:relative;border-radius:11px;display:grid;place-items:center;overflow:hidden;background:rgba(255,255,255,.2);min-width:0}.cell.hole{background:transparent}.cell.block{box-shadow:inset 0 0 0 2px rgba(255,255,255,.22),inset 0 -4px 0 rgba(0,0,0,.14)}.cell.block.wood{background:linear-gradient(145deg,#a87955,#68432f)}.cell.block.copper{background:linear-gradient(145deg,#d88a55,#8a4a29)}.cell.block.silver{background:linear-gradient(145deg,#d7dbe5,#7f8798)}.cell.block.gold{background:linear-gradient(145deg,#ffe07a,#c08a16)}.boxIcon{font-size:clamp(15px,5.5vw,28px);filter:drop-shadow(0 2px 2px rgba(0,0,0,.2))}.boxHp{position:absolute;right:2px;bottom:1px;z-index:4;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:rgba(43,29,53,.78);color:white;font-size:10px;font-weight:1000;display:grid;place-items:center}
+.boardWrap{padding:8px;border-radius:24px;background:linear-gradient(145deg,rgba(255,255,255,.86),rgba(255,255,255,.62));box-shadow:0 10px 26px rgba(68,40,107,.14);touch-action:none;overscroll-behavior:contain}.board{display:grid;gap:4px;position:relative;touch-action:none}.cell{position:relative;aspect-ratio:1;border-radius:11px;display:grid;place-items:center;overflow:hidden;background:rgba(255,255,255,.2);min-width:0;min-height:0}.cell.hole{background:transparent}.cell.blockCell{background:rgba(255,255,255,.12)}
+.blockPiece{position:absolute;inset:6%;border-radius:34%;display:grid;place-items:center;overflow:hidden;pointer-events:none;z-index:3;border:2px solid rgba(255,255,255,.62);box-shadow:inset 0 -5px 0 rgba(0,0,0,.18),inset 0 4px 0 rgba(255,255,255,.28),0 3px 6px rgba(49,28,78,.20)}
+.blockPiece:before{content:"";position:absolute;inset:10%;border:2px solid rgba(255,255,255,.34);border-radius:27%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.blockPiece:after{content:"";position:absolute;width:16%;height:125%;background:rgba(255,255,255,.18);transform:rotate(45deg);border-radius:999px}
+.blockPiece.wood{background:repeating-linear-gradient(0deg,#9b6945 0 17%,#b97f52 17% 34%)}.blockPiece.wood:after{background:rgba(69,39,25,.24)}
+.blockPiece.copper{background:radial-gradient(circle at 28% 26%,rgba(255,255,255,.32) 0 7%,transparent 8%),linear-gradient(145deg,#e69b63,#a95632 58%,#7e3d28)}.blockPiece.copper:after{background:rgba(255,220,184,.25)}
+.blockPiece.silver{background:linear-gradient(135deg,#f5f7fb 0 20%,#9da8ba 21% 46%,#dce2ea 47% 68%,#7f899c 69%)}.blockPiece.silver:after{background:rgba(255,255,255,.48)}
+.blockPiece.gold{background:radial-gradient(circle at 30% 25%,#fff5b5 0 9%,transparent 10%),linear-gradient(145deg,#ffe779,#f7b92d 56%,#bd7711)}.blockPiece.gold:after{background:rgba(255,255,255,.38)}
+.blockMark{position:relative;z-index:2;color:#fff;font-size:clamp(12px,3.4vw,21px);font-weight:1000;text-shadow:0 2px 3px rgba(0,0,0,.32)}.blockPiece.silver .blockMark{color:#4f5d72;text-shadow:0 1px 0 #fff}.blockPiece.gold .blockMark{color:#8b5700;text-shadow:0 1px 0 #fff3af}
+.boxHp{position:absolute;right:2px;bottom:1px;z-index:4;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:rgba(43,29,53,.82);color:white;font-size:9px;font-weight:1000;display:grid;place-items:center;border:1px solid rgba(255,255,255,.48)}
 .cell.track:before{content:"";position:absolute;inset:8%;border-radius:9px;border:2px dashed rgba(71,58,90,.40);z-index:0;pointer-events:none}.cell.track:after{content:"➜";position:absolute;left:2px;top:0;font-size:9px;opacity:.55;z-index:1;pointer-events:none}.cell.track.ccw:after{content:"⬅"}.cell.track.random:after{content:"↔"}
 .candy{position:absolute;inset:6%;border-radius:34%;display:grid;place-items:center;cursor:grab;box-shadow:inset 0 -5px 0 rgba(0,0,0,.13),inset 0 4px 0 rgba(255,255,255,.34),0 3px 6px rgba(49,28,78,.2);transition:transform .18s cubic-bezier(.22,.78,.24,1),filter .15s,opacity .15s;will-change:transform;z-index:2}.candy.swapping{z-index:9;pointer-events:none}.candy.railShift{animation:railPulse .18s ease}@keyframes railPulse{50%{transform:scale(.88);filter:brightness(1.2)}}.candy:active{cursor:grabbing}.candy.falling{animation:candyFall .24s cubic-bezier(.2,.8,.3,1)}@keyframes candyFall{from{transform:translateY(var(--dropY,-105%));opacity:.72}to{transform:translateY(0);opacity:1}}.candy:after{content:"";width:36%;height:23%;border-radius:50%;background:rgba(255,255,255,.38);transform:rotate(-25deg);position:absolute;top:15%;left:17%}.candy.selected{outline:4px solid white;filter:brightness(1.12);transform:scale(1.08);z-index:5}.c0{background:#ff5f92}.c1{background:#ffb629}.c2{background:#64cf71}.c3{background:#5c9dff}.c4{background:#a878ff}.c5{background:#ff7759}
 .candy[data-special="h"]:before{content:"↔";color:white;font-weight:1000;font-size:clamp(13px,5vw,25px);z-index:2;text-shadow:0 2px 2px rgba(0,0,0,.2)}.candy[data-special="v"]:before{content:"↕";color:white;font-weight:1000;font-size:clamp(13px,5vw,25px);z-index:2;text-shadow:0 2px 2px rgba(0,0,0,.2)}.candy[data-special="rainbow"]{background:conic-gradient(#ff4d6d,#ffb52e,#6bda76,#59a5ff,#a46dff,#ff4d9f,#ff4d6d);border-radius:50%}.candy[data-special="rainbow"]:before{content:"✦";font-size:clamp(16px,6vw,28px);color:white;z-index:2;text-shadow:0 2px 3px rgba(0,0,0,.22)}
-.ice{position:absolute;inset:1px;border-radius:10px;background:rgba(204,238,255,.30);border:2px solid rgba(218,246,255,.92);box-shadow:inset 0 0 8px rgba(255,255,255,.9);pointer-events:none;z-index:5}.ice:after{content:"❄ " attr(data-hp);position:absolute;right:2px;bottom:0;font-size:10px;font-weight:1000;color:#286b99;text-shadow:0 1px 0 white}.ice.super{background:rgba(166,219,255,.43);border-width:3px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.34),inset 0 0 9px #fff}.ice.extreme{background:rgba(123,190,255,.50);border-width:4px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.55),inset 0 0 11px #fff}
+.ice{position:absolute;inset:6%;border-radius:34%;background:rgba(204,238,255,.30);border:2px solid rgba(218,246,255,.92);box-shadow:inset 0 0 8px rgba(255,255,255,.9),0 2px 5px rgba(70,130,180,.18);pointer-events:none;z-index:5}.ice:after{content:"❄ " attr(data-hp);position:absolute;right:2px;bottom:0;font-size:10px;font-weight:1000;color:#286b99;text-shadow:0 1px 0 white}.ice.super{background:rgba(166,219,255,.43);border-width:3px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.34),inset 0 0 9px #fff}.ice.extreme{background:rgba(123,190,255,.50);border-width:4px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.55),inset 0 0 11px #fff}
 .goalPanel{background:white;border-radius:18px;padding:10px 12px;margin:0 0 10px;box-shadow:0 5px 16px rgba(70,45,108,.1)}.goalPanel>div:first-child{display:flex;align-items:center;justify-content:space-between;gap:8px}.goalList{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}.goalChip{display:flex;align-items:center;gap:6px;background:#f6f1ff;border-radius:999px;padding:7px 9px;font-size:12px;font-weight:900}.goalDot{width:18px;height:18px;border-radius:34%;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12),inset 0 2px 0 rgba(255,255,255,.3)}.goalDone{opacity:.55;text-decoration:line-through}.starGuide{text-align:center;font-size:11px;opacity:.7;margin:-4px 0 8px}.heartText{font-size:12px}.tools{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:11px}.tool{border:0;border-radius:16px;background:#fff;padding:9px 4px;box-shadow:0 6px 16px rgba(65,42,100,.1);font-weight:900;color:var(--ink);cursor:pointer;position:relative}.tool.active{outline:3px solid #ff65a6;background:#fff0f6}.tool small{display:block;font-size:10px;opacity:.63;margin-top:2px}.count{position:absolute;top:-5px;right:-3px;background:#7340df;color:#fff;border-radius:999px;min-width:20px;height:20px;display:grid;place-items:center;font-size:11px;padding:0 5px}
 .hint{font-size:12px;text-align:center;opacity:.7;margin-top:9px;min-height:17px}.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(30px);background:#3f3156;color:white;border-radius:999px;padding:10px 15px;z-index:100;opacity:0;pointer-events:none;transition:.24s;font-weight:850;max-width:88%;text-align:center}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .modal{position:fixed;inset:0;background:rgba(42,27,66,.45);display:grid;place-items:center;padding:20px;z-index:90;backdrop-filter:blur(5px)}.modalCard{width:min(100%,420px);background:white;border-radius:28px;padding:23px;text-align:center;box-shadow:0 25px 60px rgba(34,19,55,.28)}.modalCard h2{font-size:27px;margin:0 0 7px}.bigStars{font-size:40px;letter-spacing:3px;margin:10px 0}.scoreLine{font-weight:900;margin:7px 0 2px}.modalBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px}.modalBtns .primary{margin:0;padding:13px;box-shadow:none}.modalBtns .secondary{padding:13px}.modalBtns.one{grid-template-columns:1fr}
-@media(max-width:390px){.hero h1{font-size:33px}.levels{gap:9px}.level{border-radius:18px}.board{gap:3px}.gameScreen{padding-left:7px;padding-right:7px}.candy{inset:5%}}
+@media(max-width:390px){.hero h1{font-size:33px}.levels{gap:9px}.level{border-radius:18px}.board{gap:3px}.gameScreen{padding-left:7px;padding-right:7px}.candy,.ice,.blockPiece{inset:5%}}
 
 .customHero{background:linear-gradient(145deg,#fff,#f7f1ff);border-radius:24px;padding:16px;box-shadow:var(--shadow);margin-bottom:12px}.customHero h3{margin:0 0 5px}.customList{display:grid;gap:12px}.customCard{background:#fff;border-radius:22px;padding:15px;box-shadow:0 8px 22px rgba(70,45,108,.11)}.customCardTop{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.customCard h3{margin:0 0 4px;font-size:17px}.customMeta{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.tag{font-size:11px;font-weight:900;padding:6px 8px;border-radius:999px;background:#f4efff}.cardActions{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:7px;margin-top:12px}.cardActions button{border:0;border-radius:13px;padding:10px 8px;font-weight:900;cursor:pointer}.playBtn{background:#7b4ce8;color:#fff}.editBtn{background:#f1eaff;color:#6132c8}.deleteBtn{background:#fff0f3;color:#c63e65}.emptyState{background:#fff;border-radius:22px;padding:28px 18px;text-align:center;box-shadow:0 8px 22px rgba(70,45,108,.09)}
-.designerCard{background:#fff;border-radius:22px;padding:15px;box-shadow:0 8px 22px rgba(70,45,108,.11);margin-bottom:12px}.designerCard h3{margin:0 0 10px}.fieldGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label,.goalEdit label,.starEdit label{display:block;font-size:11px;font-weight:900;opacity:.7;margin:0 0 5px}.field input,.goalEdit input,.starEdit input{width:100%;border:2px solid #e8dcff;border-radius:13px;padding:10px;outline:none;background:#fff}.field input:focus,.goalEdit input:focus,.starEdit input:focus{border-color:#9b70ff}.goalEditor{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.goalEdit{background:#faf7ff;padding:8px;border-radius:14px}.goalEditHead{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:900;margin-bottom:5px}.goalEditHead i{width:17px;height:17px;border-radius:34%;display:block}.switchRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0 2px}.switchRow input{width:20px;height:20px}.starEditor{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}.starEdit input:disabled{opacity:.65;background:#f5f2fa}.autoNote{font-size:11px;opacity:.65;margin-top:8px;line-height:1.45}.toolPalette{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.designTool{border:2px solid transparent;border-radius:13px;padding:9px 5px;background:#f7f2ff;font-weight:900;font-size:11px;cursor:pointer}.designTool.active{border-color:#8b5bff;background:#eee5ff}.designerBoard{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;aspect-ratio:1;margin-top:10px;padding:7px;border-radius:18px;background:#eee7f8;touch-action:none}.designCell{position:relative;border:0;border-radius:9px;background:#fff;display:grid;place-items:center;font-size:clamp(14px,5vw,24px);cursor:pointer;min-width:0;box-shadow:inset 0 -2px 0 rgba(0,0,0,.05)}.designCell.hole{background:rgba(255,255,255,.22);box-shadow:inset 0 0 0 2px rgba(86,61,120,.13)}.designCell .miniIce{position:absolute;inset:3px;border-radius:7px;border:2px solid #d7f2ff;background:rgba(171,224,255,.45);display:grid;place-items:end;font-size:9px;color:#286b99;font-weight:1000;padding:1px}.designLegend{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.designerActions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.designerActions .primary{margin:0;box-shadow:none;padding:13px}.dangerBtn{border:0;border-radius:16px;padding:13px;background:#fff0f3;color:#bd345e;font-weight:950;cursor:pointer}.wideHome{grid-column:1/-1}.customBadge{font-size:11px;background:#ffeff7;color:#bf3971;border-radius:999px;padding:5px 8px;font-weight:950}
+.designerCard{background:#fff;border-radius:22px;padding:15px;box-shadow:0 8px 22px rgba(70,45,108,.11);margin-bottom:12px}.designerCard h3{margin:0 0 10px}.fieldGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label,.goalEdit label,.starEdit label{display:block;font-size:11px;font-weight:900;opacity:.7;margin:0 0 5px}.field input,.goalEdit input,.starEdit input{width:100%;border:2px solid #e8dcff;border-radius:13px;padding:10px;outline:none;background:#fff}.field input:focus,.goalEdit input:focus,.starEdit input:focus{border-color:#9b70ff}.goalEditor{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.goalEdit{background:#faf7ff;padding:8px;border-radius:14px}.goalEditHead{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:900;margin-bottom:5px}.goalEditHead i{width:17px;height:17px;border-radius:34%;display:block}.switchRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0 2px}.switchRow input{width:20px;height:20px}.starEditor{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}.starEdit input:disabled{opacity:.65;background:#f5f2fa}.autoNote{font-size:11px;opacity:.65;margin-top:8px;line-height:1.45}.designCheck{margin-top:11px;padding:10px 11px;border-radius:14px;font-size:11px;line-height:1.45;font-weight:800}.designCheck.ok{background:#eefaf1;color:#237044}.designCheck.warn{background:#fff7df;color:#8a5c00}.designCheck.danger{background:#fff0f3;color:#a62e52}.designCheck b{display:block;margin-bottom:3px;font-size:12px}.toolPalette{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.designTool{border:2px solid transparent;border-radius:13px;padding:9px 5px;background:#f7f2ff;font-weight:900;font-size:11px;cursor:pointer}.designTool.active{border-color:#8b5bff;background:#eee5ff}.designerBoard{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:10px;padding:7px;border-radius:18px;background:#eee7f8;touch-action:none;overscroll-behavior:contain}.designCell{position:relative;aspect-ratio:1;border:0;border-radius:9px;background:#fff;display:grid;place-items:center;font-size:clamp(14px,5vw,24px);cursor:pointer;min-width:0;min-height:0;box-shadow:inset 0 -2px 0 rgba(0,0,0,.05)}.designCell.hole{background:rgba(255,255,255,.22);box-shadow:inset 0 0 0 2px rgba(86,61,120,.13)}.designCell .miniIce{position:absolute;inset:7%;border-radius:30%;border:2px solid #d7f2ff;background:rgba(171,224,255,.45);display:grid;place-items:end;font-size:8px;color:#286b99;font-weight:1000;padding:1px;pointer-events:none}.designCell .designBlock{inset:7%;z-index:2}.designCell .designBlock .blockMark{font-size:clamp(9px,2.8vw,16px)}.designLegend{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.designerActions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.designerActions .primary{margin:0;box-shadow:none;padding:13px}.dangerBtn{border:0;border-radius:16px;padding:13px;background:#fff0f3;color:#bd345e;font-weight:950;cursor:pointer}.wideHome{grid-column:1/-1}.customBadge{font-size:11px;background:#ffeff7;color:#bf3971;border-radius:999px;padding:5px 8px;font-weight:950}
 @media(max-width:390px){.goalEditor,.starEditor{grid-template-columns:repeat(2,1fr)}.toolPalette{grid-template-columns:repeat(2,1fr)}}
 
 </style>
@@ -99,7 +114,7 @@ button,input{font:inherit}.hidden{display:none!important}
 
   <main id="customScreen" class="screen hidden">
     <div class="sectionTitle"><button class="backBtn" onclick="goHome()">‹</button><h2>自設關卡</h2><button class="backBtn" onclick="openDesigner()">＋</button></div>
-    <div class="customHero"><h3>🧩 你的關卡庫</h3><div class="muted">自己設定步數、消除任務、冰層、箱子同版圖。自設關卡會儲存在此瀏覽器；遊玩會扣 1 ❤️，三星不派金幣。</div><button class="primary" onclick="openDesigner()">＋ 設計新關卡</button></div>
+    <div class="customHero"><h3>🧩 你的關卡庫</h3><div class="muted">自己設定步數、消除任務、冰層、箱子同 10×7 版圖。自設關卡會儲存在此瀏覽器；遊玩會扣 1 ❤️，三星不派金幣。</div><button class="primary" onclick="openDesigner()">＋ 設計新關卡</button></div>
     <div id="customList" class="customList"></div>
   </main>
 
@@ -118,9 +133,10 @@ button,input{font:inherit}.hidden{display:none!important}
       <div class="switchRow"><div><b>由電腦自動計算</b><div class="muted">按步數、任務量、障礙耐久及版圖估算</div></div><input id="autoStars" type="checkbox" checked onchange="toggleAutoStars()"></div>
       <div class="starEditor"><div class="starEdit"><label>⭐ 1 星</label><input id="designStar1" type="number" min="0" step="50"></div><div class="starEdit"><label>⭐⭐ 2 星</label><input id="designStar2" type="number" min="0" step="50"></div><div class="starEdit"><label>⭐⭐⭐ 3 星</label><input id="designStar3" type="number" min="0" step="50"></div></div>
       <div class="autoNote">自動分數屬估算值。最理想做法係先用自動值建立，再實際試玩幾次；如果三星太易／太難，就關閉自動計算再微調。</div>
+      <div id="designWarnings" class="designCheck ok"><b>✅ 關卡檢查</b>設定會即時檢查步數、任務量同分數難度。</div>
     </div>
     <div class="designerCard">
-      <h3>🧱 版圖與障礙</h3><div class="muted">先選工具，再點棋盤格。冰層會覆蓋 Candy；箱子會佔據格子；「洞」代表該格不存在。</div>
+      <h3>🧱 版圖與障礙</h3><div class="muted">10 行 × 7 列。先選工具，再點棋盤格。冰層會覆蓋 Candy；箱子會佔據格子；「洞」代表該格不存在。</div>
       <div id="toolPalette" class="toolPalette"></div><div id="designerBoard" class="designerBoard"></div><div class="designLegend"><span class="tag">❄️ 冰 2 次</span><span class="tag">🧊 超冰 3 次</span><span class="tag">💠 極冰 4 次</span><span class="tag">箱子靠鄰格消除破壞</span></div>
     </div>
     <div class="designerActions"><button class="dangerBtn" onclick="resetDesignerBoard()">重設棋盤</button><button class="primary" onclick="saveDesignedLevel()">💾 儲存關卡</button></div>
@@ -147,6 +163,7 @@ button,input{font:inherit}.hidden{display:none!important}
 <script>
 'use strict';
 const CANDIES=6, TOTAL_LEVELS=50;
+const BOARD_ROWS=10, BOARD_COLS=7;
 const SAVE_KEY='sugarPlanetSave_v1'; // keep same key for old progress
 const HEART_MAX=5, HEART_MS=10*60*1000;
 const price={hammer:10,stripe:25,rainbow:35,fullheart:20};
@@ -161,19 +178,19 @@ const levelThemes=[
 let candySeq=1;
 
 function buildMask(type){
-  const n=7,m=Array.from({length:n},()=>Array(n).fill(1));
-  const hole=(r,c)=>{if(r>=0&&r<n&&c>=0&&c<n)m[r][c]=0};
-  if(type===1){[[0,0],[0,6],[6,0],[6,6]].forEach(x=>hole(...x));}
-  if(type===2){for(let r=0;r<n;r++)if(r<2||r>4){hole(r,0);hole(r,6)}}
-  if(type===3){for(let c=0;c<n;c++)if(c<2||c>4){hole(0,c);hole(6,c)}}
-  if(type===4){[[0,0],[0,1],[1,0],[0,5],[0,6],[1,6],[5,0],[6,0],[6,1],[5,6],[6,5],[6,6]].forEach(x=>hole(...x));}
-  if(type===5){for(let i=0;i<3;i++){hole(i,i);hole(i,6-i);hole(6-i,i);hole(6-i,6-i)}}
-  if(type===6){for(let r=0;r<n;r++)if(r!==3){hole(r,0);hole(r,6)}}
-  if(type===7){[[0,0],[0,1],[1,0],[0,5],[0,6],[1,6],[5,0],[6,0],[6,1],[5,6],[6,5],[6,6],[3,3]].forEach(x=>hole(...x));}
-  if(type===8){for(let r=0;r<n;r++)for(let c=0;c<n;c++)if((r===0||r===6||c===0||c===6)&&((r+c)%2===0))hole(r,c)}
-  if(type===9){[[0,0],[0,6],[6,0],[6,6],[1,1],[1,5],[5,1],[5,5]].forEach(x=>hole(...x));}
-  if(type===10){for(let i=0;i<n;i++)if(i!==3){hole(0,i);hole(6,i)};hole(1,0);hole(1,6);hole(5,0);hole(5,6)}
-  if(type===11){[[0,0],[0,1],[0,5],[0,6],[1,0],[1,6],[5,0],[5,6],[6,0],[6,1],[6,5],[6,6],[2,2],[2,4],[4,2],[4,4]].forEach(x=>hole(...x));}
+  const rows=BOARD_ROWS,cols=BOARD_COLS,R=rows-1,C=cols-1,midC=Math.floor(C/2),m=Array.from({length:rows},()=>Array(cols).fill(1));
+  const hole=(r,c)=>{if(r>=0&&r<rows&&c>=0&&c<cols)m[r][c]=0};
+  if(type===1){[[0,0],[0,C],[R,0],[R,C]].forEach(x=>hole(...x))}
+  if(type===2){for(let r=0;r<rows;r++)if(r<2||r>R-2){hole(r,0);hole(r,C)}}
+  if(type===3){for(let c=0;c<cols;c++)if(c<2||c>C-2){hole(0,c);hole(R,c)}}
+  if(type===4){[[0,0],[0,1],[1,0],[0,C-1],[0,C],[1,C],[R-1,0],[R,0],[R,1],[R-1,C],[R,C-1],[R,C]].forEach(x=>hole(...x))}
+  if(type===5){for(let i=0;i<3;i++){hole(i,i);hole(i,C-i);hole(R-i,i);hole(R-i,C-i)}}
+  if(type===6){for(let r=0;r<rows;r++)if(r!==4&&r!==5){hole(r,0);hole(r,C)}}
+  if(type===7){[[0,0],[0,1],[1,0],[0,C-1],[0,C],[1,C],[R-1,0],[R,0],[R,1],[R-1,C],[R,C-1],[R,C],[4,midC],[5,midC]].forEach(x=>hole(...x))}
+  if(type===8){for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)if((r===0||r===R||c===0||c===C)&&((r+c)%2===0))hole(r,c)}
+  if(type===9){[[0,0],[0,C],[R,0],[R,C],[1,1],[1,C-1],[R-1,1],[R-1,C-1]].forEach(x=>hole(...x))}
+  if(type===10){for(let c=0;c<cols;c++)if(c!==midC){hole(0,c);hole(R,c)};hole(1,0);hole(1,C);hole(R-1,0);hole(R-1,C)}
+  if(type===11){[[0,0],[0,1],[0,C-1],[0,C],[1,0],[1,C],[R-1,0],[R-1,C],[R,0],[R,1],[R,C-1],[R,C],[2,2],[2,C-2],[R-2,2],[R-2,C-2]].forEach(x=>hole(...x))}
   return m;
 }
 function rectRing(top,left,bottom,right){
@@ -181,8 +198,9 @@ function rectRing(top,left,bottom,right){
 }
 function buildTrack(mask,style){
   if(!style)return [];
-  const ring=style===1?rectRing(0,0,6,6):style===2?rectRing(1,1,5,5):rectRing(2,2,4,4);
-  return ring.filter(([r,c])=>mask[r][c]);
+  const R=BOARD_ROWS-1,C=BOARD_COLS-1;
+  const ring=style===1?rectRing(0,0,R,C):style===2?rectRing(1,1,R-1,C-1):rectRing(2,2,R-2,C-2);
+  return ring.filter(([r,c])=>mask[r]?.[c]);
 }
 function makeGoals(i){
   const count=i<2?1:(i<12?2:3), base=i<2?12+i*3:8+Math.floor(i*.08)+Math.floor(i/18);
@@ -212,14 +230,22 @@ const LEVELS=Array.from({length:TOTAL_LEVELS},(_,i)=>{
   const star1=1800+i*135+tier*140;
   const trackMode=lvl<10?null:(['cw','ccw','random'][Math.floor((lvl-10)/5)%3]);
   const trackStyle=lvl<10?0:1+Math.floor((lvl-10)/14)%3;
-  return {id:lvl,name:levelThemes[i],rows:7,cols:7,moves:movesForLevel(lvl),goals:makeGoals(i),star1,star2:Math.round(star1*1.42),star3:Math.round(star1*1.84),mask,obstacles:obstaclePlan(lvl),trackMode,track:buildTrack(mask,trackStyle)};
+  return {id:lvl,name:levelThemes[i],rows:BOARD_ROWS,cols:BOARD_COLS,moves:movesForLevel(lvl),goals:makeGoals(i),star1,star2:Math.round(star1*1.42),star3:Math.round(star1*1.84),mask,obstacles:obstaclePlan(lvl),trackMode,track:buildTrack(mask,trackStyle)};
 });
 
 let save=loadSave(),game=null,resolving=false,activeTool=null,stripeChoice='h',gesture=null;
 function defaultSave(){return {coins:0,unlocked:1,stars:{},best:{},inventory:{hammer:1,stripe:0,rainbow:0},devRedeemed:false,hearts:5,heartUpdatedAt:Date.now(),customLevels:[],customStats:{}};}
+function normalizeCustomLevelDimensions(level){
+  if(!level||typeof level!=='object')return level;
+  const oldMask=Array.isArray(level.mask)?level.mask:[],oldRows=Number(level.rows)||oldMask.length||7,oldCols=Number(level.cols)||oldMask[0]?.length||7;
+  const mask=Array.from({length:BOARD_ROWS},(_,r)=>Array.from({length:BOARD_COLS},(_,c)=>r<oldRows&&c<oldCols?(oldMask[r]?.[c]===0?0:1):1));
+  level.rows=BOARD_ROWS;level.cols=BOARD_COLS;level.mask=mask;
+  level.track=(level.track||[]).filter(([r,c])=>r>=0&&r<BOARD_ROWS&&c>=0&&c<BOARD_COLS&&mask[r][c]);
+  return level;
+}
 function loadSave(){
   try{const x=JSON.parse(localStorage.getItem(SAVE_KEY))||{},d=defaultSave(),merged=Object.assign(d,x,{inventory:Object.assign(d.inventory,x.inventory||{})});
-    if(!Number.isFinite(merged.hearts))merged.hearts=5;merged.hearts=Math.max(0,Math.min(HEART_MAX,merged.hearts));if(!Number.isFinite(merged.heartUpdatedAt))merged.heartUpdatedAt=Date.now();merged.unlocked=Math.max(1,Math.min(TOTAL_LEVELS,Number(merged.unlocked)||1));if(merged.unlocked===20&&merged.best&&merged.best[20]!==undefined)merged.unlocked=21;if(!Array.isArray(merged.customLevels))merged.customLevels=[];if(!merged.customStats||typeof merged.customStats!=='object')merged.customStats={};return merged;
+    if(!Number.isFinite(merged.hearts))merged.hearts=5;merged.hearts=Math.max(0,Math.min(HEART_MAX,merged.hearts));if(!Number.isFinite(merged.heartUpdatedAt))merged.heartUpdatedAt=Date.now();merged.unlocked=Math.max(1,Math.min(TOTAL_LEVELS,Number(merged.unlocked)||1));if(merged.unlocked===20&&merged.best&&merged.best[20]!==undefined)merged.unlocked=21;if(!Array.isArray(merged.customLevels))merged.customLevels=[];merged.customLevels=merged.customLevels.map(normalizeCustomLevelDimensions);if(!merged.customStats||typeof merged.customStats!=='object')merged.customStats={};return merged;
   }catch(e){return defaultSave();}
 }
 function syncHearts(){const now=Date.now();if(save.hearts>=HEART_MAX){save.hearts=HEART_MAX;save.heartUpdatedAt=now;return false}const elapsed=Math.max(0,now-save.heartUpdatedAt),gained=Math.floor(elapsed/HEART_MS);if(gained>0){save.hearts=Math.min(HEART_MAX,save.hearts+gained);save.heartUpdatedAt=save.hearts>=HEART_MAX?now:save.heartUpdatedAt+gained*HEART_MS;localStorage.setItem(SAVE_KEY,JSON.stringify(save));return true}return false}
@@ -252,34 +278,71 @@ function renderCustomLevels(){
   levels.forEach((l,i)=>{const st=save.customStats[l.uid]||{stars:0,best:0},obs=l.obstacles||{},d=document.createElement('div');d.className='customCard';const hazards=(obs.ice2||0)+(obs.ice3||0)+(obs.ice4||0)+(obs.wood||0)+(obs.copper||0)+(obs.silver||0)+(obs.gold||0);d.innerHTML=`<div class="customCardTop"><div><h3>${escapeHtml(l.name||`自設關卡 ${i+1}`)}</h3><div class="muted">${'★'.repeat(st.stars||0)}${'☆'.repeat(3-(st.stars||0))}　最高 ${Number(st.best||0).toLocaleString()}</div></div><span class="customBadge">CUSTOM</span></div><div class="customMeta"><span class="tag">👣 ${l.moves} 步</span><span class="tag">🎯 ${l.goals.length} 色任務</span><span class="tag">🧱 ${hazards} 障礙</span></div><div class="cardActions"><button class="playBtn">▶ 遊玩</button><button class="editBtn">✏️ 編輯</button><button class="deleteBtn">🗑️ 刪除</button></div>`;const [play,edit,del]=d.querySelectorAll('button');play.onclick=()=>startCustomLevel(l.uid);edit.onclick=()=>openDesigner(l.uid);del.onclick=()=>deleteCustomLevel(l.uid);root.appendChild(d)})
 }
 function escapeHtml(v){return String(v).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]))}
-function makeBlankDesigner(editingId=null){return {editingId,tool:'normal',cells:Array.from({length:7},()=>Array.from({length:7},()=>({type:'normal'})))}}
+function makeBlankDesigner(editingId=null){return {editingId,tool:'normal',cells:Array.from({length:BOARD_ROWS},()=>Array.from({length:BOARD_COLS},()=>({type:'normal'})))}}
 function openDesigner(uid=null){
   hideAll();document.getElementById('designerScreen').classList.remove('hidden');designer=makeBlankDesigner(uid);const existing=uid?(save.customLevels||[]).find(x=>x.uid===uid):null;
   document.getElementById('designerTitle').textContent=existing?'編輯自設關卡':'設計關卡';document.getElementById('designName').value=existing?.name||`我的關卡 ${(save.customLevels||[]).length+1}`;document.getElementById('designMoves').value=existing?.moves||20;
   buildGoalEditor(existing);buildToolPalette();
   if(existing){
-    for(let r=0;r<7;r++)for(let c=0;c<7;c++)if(!existing.mask[r][c])designer.cells[r][c]={type:'hole'};
+    for(let r=0;r<BOARD_ROWS;r++)for(let c=0;c<BOARD_COLS;c++)if(!existing.mask?.[r]?.[c])designer.cells[r][c]={type:'hole'};
     (existing.customSetup?.ice||[]).forEach(x=>designer.cells[x.r][x.c]={type:'ice'+x.hp});
     (existing.customSetup?.blocks||[]).forEach(x=>designer.cells[x.r][x.c]={type:x.type});
   }
   document.getElementById('autoStars').checked=existing?existing.starModeAuto!==false:true;
   document.getElementById('designStar1').value=existing?.star1||0;document.getElementById('designStar2').value=existing?.star2||0;document.getElementById('designStar3').value=existing?.star3||0;
-  renderDesignerBoard();toggleAutoStars();if(!existing||document.getElementById('autoStars').checked)updateAutoStarPreview()
+  renderDesignerBoard();toggleAutoStars();if(!existing||document.getElementById('autoStars').checked)updateAutoStarPreview();updateDesignerWarnings()
 }
-function buildGoalEditor(existing){const root=document.getElementById('goalEditor');root.innerHTML='';for(let i=0;i<CANDIES;i++){const old=existing?.goals?.find(g=>g.color===i)?.count||0,d=document.createElement('div');d.className='goalEdit';d.innerHTML=`<div class="goalEditHead"><i class="c${i}"></i>${colorNames[i]}</div><input id="goalCount${i}" type="number" min="0" max="99" value="${old}" inputmode="numeric">`;root.appendChild(d);d.querySelector('input').addEventListener('input',updateAutoStarPreview)}}
+function buildGoalEditor(existing){const root=document.getElementById('goalEditor');root.innerHTML='';for(let i=0;i<CANDIES;i++){const old=existing?.goals?.find(g=>g.color===i)?.count||0,d=document.createElement('div');d.className='goalEdit';d.innerHTML=`<div class="goalEditHead"><i class="c${i}"></i>${colorNames[i]}</div><input id="goalCount${i}" type="number" min="0" max="99" value="${old}" inputmode="numeric">`;root.appendChild(d);d.querySelector('input').addEventListener('input',()=>{updateAutoStarPreview();updateDesignerWarnings()})}}
 function buildToolPalette(){const root=document.getElementById('toolPalette');root.innerHTML='';DESIGN_TOOLS.forEach(([id,label])=>{const b=document.createElement('button');b.className='designTool'+(designer.tool===id?' active':'');b.textContent=label;b.onclick=()=>{designer.tool=id;root.querySelectorAll('.designTool').forEach(x=>x.classList.remove('active'));b.classList.add('active')};root.appendChild(b)})}
-function renderDesignerBoard(){const root=document.getElementById('designerBoard');root.innerHTML='';for(let r=0;r<7;r++)for(let c=0;c<7;c++){const state=designer.cells[r][c],b=document.createElement('button');b.className='designCell'+(state.type==='hole'?' hole':'');const icons={normal:'🍬',hole:'',wood:'🪵',copper:'🟫',silver:'⬜',gold:'🟨'};if(state.type.startsWith('ice')){const hp=Number(state.type.slice(3));b.innerHTML=`🍬<span class="miniIce">❄ ${hp}</span>`}else b.textContent=icons[state.type]??'🍬';b.onclick=()=>paintDesignCell(r,c);root.appendChild(b)}}
-function paintDesignCell(r,c){designer.cells[r][c]={type:designer.tool};renderDesignerBoard();updateAutoStarPreview()}
-function resetDesignerBoard(){if(!designer)return;designer.cells=Array.from({length:7},()=>Array.from({length:7},()=>({type:'normal'})));renderDesignerBoard();updateAutoStarPreview();toast('棋盤已重設')}
+function renderDesignerBoard(){const root=document.getElementById('designerBoard');root.innerHTML='';root.style.gridTemplateColumns=`repeat(${BOARD_COLS},1fr)`;const marks={wood:'×',copper:'●',silver:'◆',gold:'✦'};for(let r=0;r<BOARD_ROWS;r++)for(let c=0;c<BOARD_COLS;c++){const state=designer.cells[r][c],b=document.createElement('button');b.className='designCell'+(state.type==='hole'?' hole':'');if(state.type.startsWith('ice')){const hp=Number(state.type.slice(3));b.innerHTML=`🍬<span class="miniIce">❄ ${hp}</span>`}else if(['wood','copper','silver','gold'].includes(state.type)){b.innerHTML=`<span class="blockPiece designBlock ${state.type}"><span class="blockMark">${marks[state.type]}</span></span>`}else b.textContent=state.type==='hole'?'':'🍬';b.onclick=()=>paintDesignCell(r,c);root.appendChild(b)}}
+function paintDesignCell(r,c){designer.cells[r][c]={type:designer.tool};renderDesignerBoard();updateAutoStarPreview();updateDesignerWarnings()}
+function resetDesignerBoard(){if(!designer)return;designer.cells=Array.from({length:BOARD_ROWS},()=>Array.from({length:BOARD_COLS},()=>({type:'normal'})));renderDesignerBoard();updateAutoStarPreview();updateDesignerWarnings();toast('棋盤已重設')}
 function designerGoals(){const goals=[];for(let i=0;i<CANDIES;i++){const count=Math.max(0,Math.min(99,Number(document.getElementById(`goalCount${i}`)?.value)||0));if(count>0)goals.push({color:i,count})}return goals}
-function designerSetup(){const mask=Array.from({length:7},()=>Array(7).fill(1)),ice=[],blocks=[],obstacles={ice2:0,ice3:0,ice4:0,wood:0,copper:0,silver:0,gold:0};for(let r=0;r<7;r++)for(let c=0;c<7;c++){const t=designer.cells[r][c].type;if(t==='hole')mask[r][c]=0;else if(t.startsWith('ice')){const hp=Number(t.slice(3));ice.push({r,c,hp});obstacles['ice'+hp]++}else if(['wood','copper','silver','gold'].includes(t)){const hp=t==='wood'?1:t==='copper'?2:3;blocks.push({r,c,type:t,hp});obstacles[t]++}}return {mask,ice,blocks,obstacles}}
+function designerSetup(){const mask=Array.from({length:BOARD_ROWS},()=>Array(BOARD_COLS).fill(1)),ice=[],blocks=[],obstacles={ice2:0,ice3:0,ice4:0,wood:0,copper:0,silver:0,gold:0};for(let r=0;r<BOARD_ROWS;r++)for(let c=0;c<BOARD_COLS;c++){const t=designer.cells[r][c].type;if(t==='hole')mask[r][c]=0;else if(t.startsWith('ice')){const hp=Number(t.slice(3));ice.push({r,c,hp});obstacles['ice'+hp]++}else if(['wood','copper','silver','gold'].includes(t)){const hp=t==='wood'?1:t==='copper'?2:3;blocks.push({r,c,type:t,hp});obstacles[t]++}}return {mask,ice,blocks,obstacles}}
 function round50(n){return Math.max(0,Math.round(n/50)*50)}
-function calculateCustomStarTargets(){const moves=Math.max(5,Math.min(99,Number(document.getElementById('designMoves').value)||20)),goals=designerGoals(),setup=designerSetup(),goalTotal=goals.reduce((a,g)=>a+g.count,0),iceEffort=setup.ice.reduce((a,x)=>a+x.hp,0),blockEffort=setup.blocks.reduce((a,x)=>a+x.hp,0),playable=setup.mask.flat().filter(Boolean).length-setup.blocks.length,density=Math.max(0,(32-Math.max(1,playable))*35),tightness=Math.max(0,20-moves)*55,base=Math.max(900,goalTotal*100+iceEffort*55+blockEffort*105+density+tightness);const s1=round50(base*.55),s2=Math.max(s1+300,round50(base*.78)),s3=Math.max(s2+400,round50(base*1.02));return [s1,s2,s3]}
-function toggleAutoStars(){const auto=document.getElementById('autoStars').checked;['designStar1','designStar2','designStar3'].forEach(id=>document.getElementById(id).disabled=auto);if(auto)updateAutoStarPreview()}
+function calculateCustomStarTargets(){const moves=Math.max(5,Math.min(99,Number(document.getElementById('designMoves').value)||20)),goals=designerGoals(),setup=designerSetup(),goalTotal=goals.reduce((a,g)=>a+g.count,0),iceEffort=setup.ice.reduce((a,x)=>a+x.hp,0),blockEffort=setup.blocks.reduce((a,x)=>a+x.hp,0),playable=setup.mask.flat().filter(Boolean).length-setup.blocks.length,density=Math.max(0,(44-Math.max(1,playable))*30),tightness=Math.max(0,20-moves)*55,base=Math.max(900,goalTotal*100+iceEffort*55+blockEffort*105+density+tightness);const s1=round50(base*.55),s2=Math.max(s1+300,round50(base*.78)),s3=Math.max(s2+400,round50(base*1.02));return [s1,s2,s3]}
+function evaluateDesignerDifficulty(){
+  if(!designer)return {level:'ok',messages:[],recommendedMoves:0};
+  const moves=Math.max(5,Math.min(99,Number(document.getElementById('designMoves')?.value)||20)),goals=designerGoals(),setup=designerSetup();
+  const goalTotal=goals.reduce((a,g)=>a+g.count,0),iceEffort=setup.ice.reduce((a,x)=>a+x.hp,0),blockEffort=setup.blocks.reduce((a,x)=>a+x.hp,0),playable=setup.mask.flat().filter(Boolean).length-setup.blocks.length;
+  const layoutPenalty=Math.max(0,34-playable)*.18,estimated=Math.max(1,Math.ceil(goalTotal/3.9+iceEffort*.20+blockEffort*.32+layoutPenalty));
+  let level='ok',messages=[];
+  if(goalTotal>moves*8||moves<estimated*.65){level='danger';messages.push(`過關風險極高：目前 ${moves} 步，任務／障礙量估計需要約 ${estimated} 步以上。`)}
+  else if(goalTotal>moves*5.5||moves<estimated){level='warn';messages.push(`步數偏緊：目前 ${moves} 步，系統估計較合理約 ${estimated}–${Math.ceil(estimated*1.25)} 步。`)}
+  else messages.push(`步數／任務量暫時合理：${moves} 步，估算需求約 ${estimated} 步。`);
+  if(playable<24){level='danger';messages.push(`可用 Candy 格只有 ${playable} 格，連線及補糖空間太少。`)}
+  const auto=document.getElementById('autoStars')?.checked,[a1,a2,a3]=calculateCustomStarTargets();
+  if(!auto){
+    const s1=Math.max(0,Number(document.getElementById('designStar1')?.value)||0),s2=Math.max(0,Number(document.getElementById('designStar2')?.value)||0),s3=Math.max(0,Number(document.getElementById('designStar3')?.value)||0);
+    if(s3>a3*1.75||s2>a2*1.8||s1>a1*1.9){level='danger';messages.push(`自訂星級分數極難達成：建議三星約 ${a3.toLocaleString()}，目前設為 ${s3.toLocaleString()}。`)}
+    else if(s3>a3*1.35||s2>a2*1.4||s1>a1*1.5){if(level==='ok')level='warn';messages.push(`自訂分數偏高：建議三星約 ${a3.toLocaleString()}，目前 ${s3.toLocaleString()}。`)}
+    else messages.push(`自訂分數與系統估算接近（建議三星約 ${a3.toLocaleString()}）。`);
+  }else messages.push(`星級分數由系統估算（三星 ${a3.toLocaleString()}）。`);
+  return {level,messages,recommendedMoves:estimated,autoStars:[a1,a2,a3]};
+}
+function updateDesignerWarnings(){
+  const box=document.getElementById('designWarnings');if(!box||!designer)return;const check=evaluateDesignerDifficulty(),title=check.level==='danger'?'⛔ 關卡檢查：高風險':check.level==='warn'?'⚠️ 關卡檢查：需要留意':'✅ 關卡檢查：設定合理';
+  box.className='designCheck '+check.level;box.innerHTML=`<b>${title}</b>${check.messages.map(escapeHtml).join('<br>')}`;
+}
+function toggleAutoStars(){const auto=document.getElementById('autoStars').checked;['designStar1','designStar2','designStar3'].forEach(id=>document.getElementById(id).disabled=auto);if(auto)updateAutoStarPreview();updateDesignerWarnings()}
 function updateAutoStarPreview(){if(!designer||!document.getElementById('autoStars')?.checked)return;const [a,b,c]=calculateCustomStarTargets();document.getElementById('designStar1').value=a;document.getElementById('designStar2').value=b;document.getElementById('designStar3').value=c}
-document.addEventListener('input',e=>{if(e.target?.id==='designMoves')updateAutoStarPreview()});
+document.addEventListener('input',e=>{if(e.target?.id==='designMoves'||e.target?.id?.startsWith('goalCount'))updateAutoStarPreview();if(e.target?.id==='designMoves'||e.target?.id?.startsWith('goalCount')||e.target?.id?.startsWith('designStar'))updateDesignerWarnings()});
 function saveDesignedLevel(){
-  if(!designer)return;const name=document.getElementById('designName').value.trim()||'未命名關卡',moves=Math.max(5,Math.min(99,Number(document.getElementById('designMoves').value)||20)),goals=designerGoals();if(!goals.length)return toast('請至少設定一種 Candy 消除要求');const setup=designerSetup(),candyCells=setup.mask.flat().filter(Boolean).length-setup.blocks.length;if(candyCells<18)return toast('可放 Candy 的格數太少，至少保留 18 格');let hasTriple=false;for(let r=0;r<7;r++)for(let c=0;c<7;c++){const ok=(rr,cc)=>rr>=0&&rr<7&&cc>=0&&cc<7&&setup.mask[rr][cc]&&!setup.blocks.some(b=>b.r===rr&&b.c===cc);if(ok(r,c)&&((ok(r,c+1)&&ok(r,c+2))||(ok(r+1,c)&&ok(r+2,c))))hasTriple=true}if(!hasTriple)return toast('版圖至少要有一段連續 3 格可放 Candy');if(document.getElementById('autoStars').checked)updateAutoStarPreview();const star1=Math.max(0,Number(document.getElementById('designStar1').value)||0),star2=Math.max(0,Number(document.getElementById('designStar2').value)||0),star3=Math.max(0,Number(document.getElementById('designStar3').value)||0);if(!(star1>0&&star1<star2&&star2<star3))return toast('星級分數必須係正數，而且 1 星 < 2 星 < 3 星');const uid=designer.editingId||('custom_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7)),level={uid,id:uid,custom:true,name,moves,rows:7,cols:7,goals,star1,star2,star3,starModeAuto:document.getElementById('autoStars').checked,mask:setup.mask,customSetup:{ice:setup.ice,blocks:setup.blocks},obstacles:setup.obstacles,trackMode:null,track:[]};const idx=(save.customLevels||[]).findIndex(x=>x.uid===uid);if(idx>=0)save.customLevels[idx]=level;else save.customLevels.push(level);persist();toast(idx>=0?'自設關卡已更新':'自設關卡已儲存');showCustomLevels()
+  if(!designer)return;
+  const name=document.getElementById('designName').value.trim()||'未命名關卡',moves=Math.max(5,Math.min(99,Number(document.getElementById('designMoves').value)||20)),goals=designerGoals();
+  if(!goals.length)return toast('請至少設定一種 Candy 消除要求');
+  const setup=designerSetup(),candyCells=setup.mask.flat().filter(Boolean).length-setup.blocks.length;
+  if(candyCells<24)return toast('可放 Candy 的格數太少，10×7 版圖至少保留 24 格');
+  let hasTriple=false;const blocked=new Set(setup.blocks.map(b=>key(b.r,b.c))),ok=(rr,cc)=>rr>=0&&rr<BOARD_ROWS&&cc>=0&&cc<BOARD_COLS&&setup.mask[rr][cc]&&!blocked.has(key(rr,cc));
+  for(let r=0;r<BOARD_ROWS;r++)for(let c=0;c<BOARD_COLS;c++)if(ok(r,c)&&((ok(r,c+1)&&ok(r,c+2))||(ok(r+1,c)&&ok(r+2,c))))hasTriple=true;
+  if(!hasTriple)return toast('版圖至少要有一段連續 3 格可放 Candy');
+  if(document.getElementById('autoStars').checked)updateAutoStarPreview();
+  const star1=Math.max(0,Number(document.getElementById('designStar1').value)||0),star2=Math.max(0,Number(document.getElementById('designStar2').value)||0),star3=Math.max(0,Number(document.getElementById('designStar3').value)||0);
+  if(!(star1>0&&star1<star2&&star2<star3))return toast('星級分數必須係正數，而且 1 星 < 2 星 < 3 星');
+  const check=evaluateDesignerDifficulty();updateDesignerWarnings();
+  if(check.level==='danger'&&!confirm('⚠️ 系統判斷這個關卡可能極難／無法在目前步數完成，或者自訂分數極難達成。仍然儲存？'))return;
+  const uid=designer.editingId||('custom_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7)),level={uid,id:uid,custom:true,name,moves,rows:BOARD_ROWS,cols:BOARD_COLS,goals,star1,star2,star3,starModeAuto:document.getElementById('autoStars').checked,mask:setup.mask,customSetup:{ice:setup.ice,blocks:setup.blocks},obstacles:setup.obstacles,trackMode:null,track:[]};
+  const idx=(save.customLevels||[]).findIndex(x=>x.uid===uid);if(idx>=0)save.customLevels[idx]=level;else save.customLevels.push(level);persist();toast(idx>=0?'自設關卡已更新':'自設關卡已儲存');showCustomLevels()
 }
 function deleteCustomLevel(uid){const level=(save.customLevels||[]).find(x=>x.uid===uid);if(!level)return;if(!confirm(`刪除「${level.name}」？此操作不能復原。`))return;save.customLevels=save.customLevels.filter(x=>x.uid!==uid);delete save.customStats[uid];persist();renderCustomLevels();toast('已刪除自設關卡')}
 function startCustomLevel(uid){const src=(save.customLevels||[]).find(x=>x.uid===uid);if(!src)return toast('找不到自設關卡');if(!consumeHeart()){showCustomLevels();return false}const cfg=JSON.parse(JSON.stringify(src));hideAll();document.getElementById('gameScreen').classList.remove('hidden');game={cfg,score:0,moves:cfg.moves,board:[],ice:[],blocks:[],ended:false,collected:Array(CANDIES).fill(0),combo:1,passed:false};activeTool=null;resolving=false;document.querySelectorAll('.tool').forEach(x=>x.classList.remove('active'));initBoard();document.getElementById('gameLevelTitle').textContent='自設關卡';document.getElementById('gameLevelSub').textContent=cfg.name;renderBoard();updateGameHUD();updateUI();setHint('自設關卡：Swipe 交換 Candy。完成任務就過關；星數只計表現。');return true}
@@ -327,17 +390,33 @@ function renderBoard(dropInfo=null,railPulse=false){
     const cell=document.createElement('div');cell.className='cell';cell.dataset.r=r;cell.dataset.c=c;
     if(!mask[r][c])cell.classList.add('hole');else{
       if(isTrackCell(r,c)){cell.classList.add('track');if(trackMode)cell.classList.add(trackMode)}
-      const block=game.blocks[r][c];if(block){cell.classList.add('block',block.type);const icons={wood:'🪵',copper:'🟫',silver:'⬜',gold:'🟨'};cell.innerHTML=`<span class="boxIcon">${icons[block.type]}</span><span class="boxHp">${block.hp}</span>`}
-      else{const candy=game.board[r][c];if(candy){const d=document.createElement('div');d.className=`candy c${candy.color}`+(railPulse&&isTrackCell(r,c)?' railShift':'');d.dataset.r=r;d.dataset.c=c;d.dataset.id=candy.id;if(candy.special)d.dataset.special=candy.special;if(dropInfo&&dropInfo[candy.id]){d.classList.add('falling');d.style.setProperty('--dropY',`${-dropInfo[candy.id]*105}%`)}d.addEventListener('pointerdown',onCandyPointerDown);d.addEventListener('pointerup',onCandyPointerUp);d.addEventListener('pointercancel',()=>gesture=null);cell.appendChild(d)}
+      const block=game.blocks[r][c];if(block){cell.classList.add('blockCell');const marks={wood:'×',copper:'●',silver:'◆',gold:'✦'};cell.innerHTML=`<div class="blockPiece ${block.type}"><span class="blockMark">${marks[block.type]}</span><span class="boxHp">${block.hp}</span></div>`}
+      else{const candy=game.board[r][c];if(candy){const d=document.createElement('div');d.className=`candy c${candy.color}`+(railPulse&&isTrackCell(r,c)?' railShift':'');d.dataset.r=r;d.dataset.c=c;d.dataset.id=candy.id;if(candy.special)d.dataset.special=candy.special;if(dropInfo&&dropInfo[candy.id]){d.classList.add('falling');d.style.setProperty('--dropY',`${-dropInfo[candy.id]*105}%`)}cell.appendChild(d)}
         if(game.ice[r][c]>0){const ice=document.createElement('div');ice.className='ice'+(game.ice[r][c]>=4?' extreme':game.ice[r][c]>=3?' super':'');ice.dataset.hp=game.ice[r][c];cell.appendChild(ice)}
       }
     }b.appendChild(cell)
   }
 }
-function onCandyPointerDown(e){if(!game||game.ended||resolving)return;e.preventDefault();gesture={r:+e.currentTarget.dataset.r,c:+e.currentTarget.dataset.c,x:e.clientX,y:e.clientY,id:e.pointerId};try{e.currentTarget.setPointerCapture(e.pointerId)}catch(_){}}
-function onCandyPointerUp(e){
-  if(!gesture||gesture.id!==e.pointerId||!game||resolving){gesture=null;return}e.preventDefault();const g=gesture;gesture=null,dx=e.clientX-g.x,dy=e.clientY-g.y,dist=Math.hypot(dx,dy);
-  if(activeTool){if(dist<25)useTool(activeTool,g.r,g.c);else toast('使用道具時請輕觸糖果');return}if(dist<20){toast('請 Swipe 糖果去相鄰格');return}let dr=0,dc=0;if(Math.abs(dx)>Math.abs(dy))dc=dx>0?1:-1;else dr=dy>0?1:-1;const r2=g.r+dr,c2=g.c+dc;if(r2<0||r2>=game.cfg.rows||c2<0||c2>=game.cfg.cols||!game.cfg.mask[r2][c2]||game.blocks[r2][c2]||!game.board[r2][c2]){toast('呢個方向唔可以交換');return}swapAndResolve({r:g.r,c:g.c},{r:r2,c:c2})
+function beginCandyGesture(el,x,y,id='touch'){if(!el||!game||game.ended||resolving)return false;gesture={r:+el.dataset.r,c:+el.dataset.c,x,y,id};return true}
+function finishCandyGesture(x,y,allowTap=false){
+  if(!gesture||!game||game.ended||resolving){gesture=null;return false}
+  const g=gesture,dx=x-g.x,dy=y-g.y,dist=Math.hypot(dx,dy);
+  if(activeTool){if(!allowTap)return false;gesture=null;if(dist<30)useTool(activeTool,g.r,g.c);else toast('使用道具時請輕觸糖果');return true}
+  if(dist<16){if(allowTap){gesture=null;toast('請 Swipe 糖果去相鄰格')}return false}
+  gesture=null;let dr=0,dc=0;if(Math.abs(dx)>Math.abs(dy))dc=dx>0?1:-1;else dr=dy>0?1:-1;const r2=g.r+dr,c2=g.c+dc;
+  if(r2<0||r2>=game.cfg.rows||c2<0||c2>=game.cfg.cols||!game.cfg.mask[r2][c2]||game.blocks[r2][c2]||!game.board[r2][c2]){toast('呢個方向唔可以交換');return true}
+  swapAndResolve({r:g.r,c:g.c},{r:r2,c:c2});return true
+}
+function initBoardGestures(){
+  const board=document.getElementById('board');if(!board)return;
+  board.addEventListener('pointerdown',e=>{const el=e.target.closest?.('.candy');if(!el)return;e.preventDefault();beginCandyGesture(el,e.clientX,e.clientY,'p'+e.pointerId)},{passive:false});
+  board.addEventListener('pointermove',e=>{if(!gesture)return;e.preventDefault();if(!activeTool)finishCandyGesture(e.clientX,e.clientY,false)},{passive:false});
+  board.addEventListener('pointerup',e=>{if(!gesture)return;e.preventDefault();finishCandyGesture(e.clientX,e.clientY,true)},{passive:false});
+  board.addEventListener('pointercancel',()=>{gesture=null});
+  board.addEventListener('touchstart',e=>{if(e.touches.length!==1||gesture)return;const el=e.target.closest?.('.candy');if(!el)return;e.preventDefault();const t=e.touches[0];beginCandyGesture(el,t.clientX,t.clientY,'touch')},{passive:false});
+  board.addEventListener('touchmove',e=>{if(!gesture||e.touches.length!==1)return;e.preventDefault();const t=e.touches[0];if(!activeTool)finishCandyGesture(t.clientX,t.clientY,false)},{passive:false});
+  board.addEventListener('touchend',e=>{if(!gesture)return;e.preventDefault();const t=e.changedTouches[0];if(t)finishCandyGesture(t.clientX,t.clientY,true);else gesture=null},{passive:false});
+  board.addEventListener('touchcancel',()=>{gesture=null},{passive:false});
 }
 async function animateSwap(a,b){
   const elA=document.querySelector(`.candy[data-r="${a.r}"][data-c="${a.c}"]`),elB=document.querySelector(`.candy[data-r="${b.r}"][data-c="${b.c}"]`);if(!elA||!elB){await sleep(80);return}
@@ -418,6 +497,12 @@ function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random
 function hasPossibleMove(){const {rows,cols}=game.cfg;for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)if(game.board[r][c])for(const [dr,dc] of [[1,0],[0,1]]){const rr=r+dr,cc=c+dc;if(rr<rows&&cc<cols&&game.board[rr][cc]){[game.board[r][c],game.board[rr][cc]]=[game.board[rr][cc],game.board[r][c]];const ok=findMatches().size>0;[game.board[r][c],game.board[rr][cc]]=[game.board[rr][cc],game.board[r][c]];if(ok)return true}}return false}
 function reshuffleBoard(){let positions=[],candies=[];for(let r=0;r<game.cfg.rows;r++)for(let c=0;c<game.cfg.cols;c++)if(game.board[r][c]){positions.push([r,c]);candies.push(game.board[r][c])}for(let tries=0;tries<100;tries++){shuffle(candies);positions.forEach(([r,c],i)=>game.board[r][c]=candies[i]);if(findMatches().size===0&&hasPossibleMove())return}}
 let toastTimer;function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),1900)}
+document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
+document.addEventListener('gesturechange',e=>e.preventDefault(),{passive:false});
+document.addEventListener('gestureend',e=>e.preventDefault(),{passive:false});
+document.addEventListener('touchmove',e=>{if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false});
+document.addEventListener('dblclick',e=>{if(e.target.closest?.('.boardWrap,.designerBoard'))e.preventDefault()},{passive:false});
+initBoardGestures();
 const sky=document.getElementById('sky');for(let i=0;i<16;i++){const d=document.createElement('div');d.className='bubble';const sz=18+Math.random()*74;d.style.width=d.style.height=sz+'px';d.style.left=Math.random()*100+'%';d.style.top=Math.random()*100+'%';sky.appendChild(d)}
 updateUI();setInterval(updateUI,1000);
 </script>
