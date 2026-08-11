@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="theme-color" content="#8e5bff" />
+<title>糖果星球 Match‑3</title>
+<style>
+:root{
+  --bg1:#fff4ff;--bg2:#e9f6ff;--ink:#3d2f5b;--purple:#8c5cff;--purple2:#6734d8;
+  --pink:#ff5fa2;--gold:#ffbf2f;--panel:rgba(255,255,255,.90);--shadow:0 12px 30px rgba(76,43,120,.18);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:ui-rounded,"SF Pro Rounded","PingFang HK","Noto Sans TC",system-ui,sans-serif;color:var(--ink);background:linear-gradient(160deg,var(--bg1),var(--bg2));min-height:100dvh;overflow-x:hidden}
+button,input{font:inherit}.hidden{display:none!important}
+.app{width:min(100%,620px);min-height:100dvh;margin:auto;position:relative;padding-bottom:28px}
+.sky{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:-1}.bubble{position:absolute;border-radius:50%;filter:blur(.2px);opacity:.35;background:#fff;box-shadow:inset 0 0 0 2px rgba(255,255,255,.55)}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 16px 6px;position:sticky;top:0;z-index:20;background:linear-gradient(180deg,rgba(255,244,255,.96),rgba(255,244,255,.72),transparent);backdrop-filter:blur(8px)}
+.logo{font-weight:950;font-size:20px;letter-spacing:-.5px}.logo span{color:var(--pink)}
+.pill{display:flex;align-items:center;gap:6px;padding:8px 11px;border-radius:999px;background:#fff;box-shadow:0 6px 18px rgba(71,43,111,.12);font-weight:900;white-space:nowrap}
+.coinDot{width:18px;height:18px;border-radius:50%;display:inline-grid;place-items:center;background:linear-gradient(#ffd866,#ffae16);color:#8b5200;font-size:11px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.12)}
+.screen{padding:8px 16px 24px}.hero{padding:28px 22px 22px;border-radius:30px;background:linear-gradient(145deg,#9b70ff,#7140e5);color:white;box-shadow:var(--shadow);position:relative;overflow:hidden;margin-top:10px}.hero:after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;right:-50px;top:-65px;background:rgba(255,255,255,.12)}
+.hero h1{font-size:38px;line-height:.98;margin:6px 0 12px;letter-spacing:-1.5px}.hero p{margin:0;opacity:.92;font-weight:650;line-height:1.45;max-width:360px}.heroCandy{font-size:44px;letter-spacing:4px;margin-top:18px;filter:drop-shadow(0 5px 6px rgba(0,0,0,.15))}
+.primary,.secondary,.danger,.iconBtn{border:0;cursor:pointer;font-weight:950}.primary{width:100%;padding:16px 18px;border-radius:18px;background:linear-gradient(#ff77b1,#ff4a96);color:white;box-shadow:0 7px 0 #d62e75,0 13px 24px rgba(233,66,139,.26);margin-top:18px}.primary:active{transform:translateY(4px);box-shadow:0 3px 0 #d62e75}.secondary{padding:13px 16px;border-radius:16px;background:#fff;color:var(--purple2);box-shadow:0 7px 18px rgba(74,47,118,.12)}
+.homeGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}.miniCard{background:var(--panel);border:1px solid rgba(255,255,255,.8);padding:16px;border-radius:22px;box-shadow:0 8px 24px rgba(65,39,104,.1)}.miniCard b{display:block;margin-bottom:4px}.muted{font-size:13px;opacity:.7;line-height:1.4}
+.sectionTitle{display:flex;align-items:end;justify-content:space-between;margin:14px 2px 12px}.sectionTitle h2{margin:0;font-size:24px}.backBtn{border:0;background:#fff;width:42px;height:42px;border-radius:14px;box-shadow:0 6px 18px rgba(71,43,111,.1);font-size:20px;cursor:pointer}
+.levels{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding-bottom:20px}.level{aspect-ratio:1;border:0;border-radius:22px;background:white;box-shadow:0 8px 20px rgba(79,50,121,.12);position:relative;font-weight:1000;font-size:21px;color:var(--purple2);cursor:pointer;overflow:hidden}.level.locked{filter:grayscale(.7);opacity:.58;cursor:not-allowed}.level .stars{position:absolute;bottom:6px;left:0;right:0;font-size:12px;letter-spacing:-1px}.level .lock{font-size:19px}.level.cleared{background:linear-gradient(145deg,#fff9ce,#fff)}
+.shopList{display:grid;gap:12px}.shopItem{background:white;border-radius:22px;padding:15px;box-shadow:0 8px 22px rgba(70,45,108,.11);display:flex;align-items:center;gap:14px}.itemIcon{width:54px;height:54px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(145deg,#f2ebff,#fff);font-size:28px}.shopItem .info{flex:1}.shopItem h3{margin:0 0 3px;font-size:16px}.buyBtn{border:0;border-radius:14px;padding:10px 12px;background:#7b4ce8;color:white;font-weight:900;cursor:pointer}.buyBtn:disabled{opacity:.45}
+.devCard{background:white;border-radius:24px;padding:18px;box-shadow:var(--shadow);margin-top:14px}.devRow{display:flex;gap:8px;margin-top:12px}.devRow input{flex:1;min-width:0;border:2px solid #e8dcff;border-radius:14px;padding:12px;outline:none}.devRow input:focus{border-color:#9b70ff}
+.gameScreen{padding:4px 10px 20px}.gameHeader{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;padding:6px 4px 10px}.levelName{text-align:center}.levelName b{display:block;font-size:16px}.levelName small{opacity:.65}
+.status{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}.stat{background:white;border-radius:16px;padding:8px;text-align:center;box-shadow:0 5px 16px rgba(70,45,108,.1)}.stat small{display:block;opacity:.62;font-weight:800}.stat b{font-size:17px}
+.progress{height:11px;border-radius:999px;background:#eae3f4;overflow:hidden;margin:1px 0 10px}.progress>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff65a6,#ffc33c);transition:width .25s}
+.boardWrap{padding:8px;border-radius:24px;background:linear-gradient(145deg,rgba(255,255,255,.86),rgba(255,255,255,.62));box-shadow:0 10px 26px rgba(68,40,107,.14);touch-action:none}.board{display:grid;gap:4px;aspect-ratio:1;position:relative}.cell{position:relative;border-radius:11px;display:grid;place-items:center;overflow:hidden;background:rgba(255,255,255,.2);min-width:0}.cell.hole{background:transparent}.cell.block{box-shadow:inset 0 0 0 2px rgba(255,255,255,.22),inset 0 -4px 0 rgba(0,0,0,.14)}.cell.block.wood{background:linear-gradient(145deg,#a87955,#68432f)}.cell.block.copper{background:linear-gradient(145deg,#d88a55,#8a4a29)}.cell.block.silver{background:linear-gradient(145deg,#d7dbe5,#7f8798)}.cell.block.gold{background:linear-gradient(145deg,#ffe07a,#c08a16)}.boxIcon{font-size:clamp(15px,5.5vw,28px);filter:drop-shadow(0 2px 2px rgba(0,0,0,.2))}.boxHp{position:absolute;right:2px;bottom:1px;z-index:4;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:rgba(43,29,53,.78);color:white;font-size:10px;font-weight:1000;display:grid;place-items:center}
+.cell.track:before{content:"";position:absolute;inset:8%;border-radius:9px;border:2px dashed rgba(71,58,90,.40);z-index:0;pointer-events:none}.cell.track:after{content:"➜";position:absolute;left:2px;top:0;font-size:9px;opacity:.55;z-index:1;pointer-events:none}.cell.track.ccw:after{content:"⬅"}.cell.track.random:after{content:"↔"}
+.candy{position:absolute;inset:6%;border-radius:34%;display:grid;place-items:center;cursor:grab;box-shadow:inset 0 -5px 0 rgba(0,0,0,.13),inset 0 4px 0 rgba(255,255,255,.34),0 3px 6px rgba(49,28,78,.2);transition:transform .18s cubic-bezier(.22,.78,.24,1),filter .15s,opacity .15s;will-change:transform;z-index:2}.candy.swapping{z-index:9;pointer-events:none}.candy.railShift{animation:railPulse .18s ease}@keyframes railPulse{50%{transform:scale(.88);filter:brightness(1.2)}}.candy:active{cursor:grabbing}.candy.falling{animation:candyFall .24s cubic-bezier(.2,.8,.3,1)}@keyframes candyFall{from{transform:translateY(var(--dropY,-105%));opacity:.72}to{transform:translateY(0);opacity:1}}.candy:after{content:"";width:36%;height:23%;border-radius:50%;background:rgba(255,255,255,.38);transform:rotate(-25deg);position:absolute;top:15%;left:17%}.candy.selected{outline:4px solid white;filter:brightness(1.12);transform:scale(1.08);z-index:5}.c0{background:#ff5f92}.c1{background:#ffb629}.c2{background:#64cf71}.c3{background:#5c9dff}.c4{background:#a878ff}.c5{background:#ff7759}
+.candy[data-special="h"]:before{content:"↔";color:white;font-weight:1000;font-size:clamp(13px,5vw,25px);z-index:2;text-shadow:0 2px 2px rgba(0,0,0,.2)}.candy[data-special="v"]:before{content:"↕";color:white;font-weight:1000;font-size:clamp(13px,5vw,25px);z-index:2;text-shadow:0 2px 2px rgba(0,0,0,.2)}.candy[data-special="rainbow"]{background:conic-gradient(#ff4d6d,#ffb52e,#6bda76,#59a5ff,#a46dff,#ff4d9f,#ff4d6d);border-radius:50%}.candy[data-special="rainbow"]:before{content:"✦";font-size:clamp(16px,6vw,28px);color:white;z-index:2;text-shadow:0 2px 3px rgba(0,0,0,.22)}
+.ice{position:absolute;inset:1px;border-radius:10px;background:rgba(204,238,255,.30);border:2px solid rgba(218,246,255,.92);box-shadow:inset 0 0 8px rgba(255,255,255,.9);pointer-events:none;z-index:5}.ice:after{content:"❄ " attr(data-hp);position:absolute;right:2px;bottom:0;font-size:10px;font-weight:1000;color:#286b99;text-shadow:0 1px 0 white}.ice.super{background:rgba(166,219,255,.43);border-width:3px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.34),inset 0 0 9px #fff}.ice.extreme{background:rgba(123,190,255,.50);border-width:4px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.55),inset 0 0 11px #fff}
+.goalPanel{background:white;border-radius:18px;padding:10px 12px;margin:0 0 10px;box-shadow:0 5px 16px rgba(70,45,108,.1)}.goalPanel>div:first-child{display:flex;align-items:center;justify-content:space-between;gap:8px}.goalList{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}.goalChip{display:flex;align-items:center;gap:6px;background:#f6f1ff;border-radius:999px;padding:7px 9px;font-size:12px;font-weight:900}.goalDot{width:18px;height:18px;border-radius:34%;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12),inset 0 2px 0 rgba(255,255,255,.3)}.goalDone{opacity:.55;text-decoration:line-through}.starGuide{text-align:center;font-size:11px;opacity:.7;margin:-4px 0 8px}.heartText{font-size:12px}.tools{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:11px}.tool{border:0;border-radius:16px;background:#fff;padding:9px 4px;box-shadow:0 6px 16px rgba(65,42,100,.1);font-weight:900;color:var(--ink);cursor:pointer;position:relative}.tool.active{outline:3px solid #ff65a6;background:#fff0f6}.tool small{display:block;font-size:10px;opacity:.63;margin-top:2px}.count{position:absolute;top:-5px;right:-3px;background:#7340df;color:#fff;border-radius:999px;min-width:20px;height:20px;display:grid;place-items:center;font-size:11px;padding:0 5px}
+.hint{font-size:12px;text-align:center;opacity:.7;margin-top:9px;min-height:17px}.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(30px);background:#3f3156;color:white;border-radius:999px;padding:10px 15px;z-index:100;opacity:0;pointer-events:none;transition:.24s;font-weight:850;max-width:88%;text-align:center}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.modal{position:fixed;inset:0;background:rgba(42,27,66,.45);display:grid;place-items:center;padding:20px;z-index:90;backdrop-filter:blur(5px)}.modalCard{width:min(100%,420px);background:white;border-radius:28px;padding:23px;text-align:center;box-shadow:0 25px 60px rgba(34,19,55,.28)}.modalCard h2{font-size:27px;margin:0 0 7px}.bigStars{font-size:40px;letter-spacing:3px;margin:10px 0}.scoreLine{font-weight:900;margin:7px 0 2px}.modalBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px}.modalBtns .primary{margin:0;padding:13px;box-shadow:none}.modalBtns .secondary{padding:13px}.modalBtns.one{grid-template-columns:1fr}
+@media(max-width:390px){.hero h1{font-size:33px}.levels{gap:9px}.level{border-radius:18px}.board{gap:3px}.gameScreen{padding-left:7px;padding-right:7px}.candy{inset:5%}}
+
+.customHero{background:linear-gradient(145deg,#fff,#f7f1ff);border-radius:24px;padding:16px;box-shadow:var(--shadow);margin-bottom:12px}.customHero h3{margin:0 0 5px}.customList{display:grid;gap:12px}.customCard{background:#fff;border-radius:22px;padding:15px;box-shadow:0 8px 22px rgba(70,45,108,.11)}.customCardTop{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.customCard h3{margin:0 0 4px;font-size:17px}.customMeta{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.tag{font-size:11px;font-weight:900;padding:6px 8px;border-radius:999px;background:#f4efff}.cardActions{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:7px;margin-top:12px}.cardActions button{border:0;border-radius:13px;padding:10px 8px;font-weight:900;cursor:pointer}.playBtn{background:#7b4ce8;color:#fff}.editBtn{background:#f1eaff;color:#6132c8}.deleteBtn{background:#fff0f3;color:#c63e65}.emptyState{background:#fff;border-radius:22px;padding:28px 18px;text-align:center;box-shadow:0 8px 22px rgba(70,45,108,.09)}
+.designerCard{background:#fff;border-radius:22px;padding:15px;box-shadow:0 8px 22px rgba(70,45,108,.11);margin-bottom:12px}.designerCard h3{margin:0 0 10px}.fieldGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label,.goalEdit label,.starEdit label{display:block;font-size:11px;font-weight:900;opacity:.7;margin:0 0 5px}.field input,.goalEdit input,.starEdit input{width:100%;border:2px solid #e8dcff;border-radius:13px;padding:10px;outline:none;background:#fff}.field input:focus,.goalEdit input:focus,.starEdit input:focus{border-color:#9b70ff}.goalEditor{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.goalEdit{background:#faf7ff;padding:8px;border-radius:14px}.goalEditHead{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:900;margin-bottom:5px}.goalEditHead i{width:17px;height:17px;border-radius:34%;display:block}.switchRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0 2px}.switchRow input{width:20px;height:20px}.starEditor{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}.starEdit input:disabled{opacity:.65;background:#f5f2fa}.autoNote{font-size:11px;opacity:.65;margin-top:8px;line-height:1.45}.toolPalette{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.designTool{border:2px solid transparent;border-radius:13px;padding:9px 5px;background:#f7f2ff;font-weight:900;font-size:11px;cursor:pointer}.designTool.active{border-color:#8b5bff;background:#eee5ff}.designerBoard{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;aspect-ratio:1;margin-top:10px;padding:7px;border-radius:18px;background:#eee7f8;touch-action:none}.designCell{position:relative;border:0;border-radius:9px;background:#fff;display:grid;place-items:center;font-size:clamp(14px,5vw,24px);cursor:pointer;min-width:0;box-shadow:inset 0 -2px 0 rgba(0,0,0,.05)}.designCell.hole{background:rgba(255,255,255,.22);box-shadow:inset 0 0 0 2px rgba(86,61,120,.13)}.designCell .miniIce{position:absolute;inset:3px;border-radius:7px;border:2px solid #d7f2ff;background:rgba(171,224,255,.45);display:grid;place-items:end;font-size:9px;color:#286b99;font-weight:1000;padding:1px}.designLegend{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.designerActions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.designerActions .primary{margin:0;box-shadow:none;padding:13px}.dangerBtn{border:0;border-radius:16px;padding:13px;background:#fff0f3;color:#bd345e;font-weight:950;cursor:pointer}.wideHome{grid-column:1/-1}.customBadge{font-size:11px;background:#ffeff7;color:#bf3971;border-radius:999px;padding:5px 8px;font-weight:950}
+@media(max-width:390px){.goalEditor,.starEditor{grid-template-columns:repeat(2,1fr)}.toolPalette{grid-template-columns:repeat(2,1fr)}}
+
+</style>
+</head>
+<body>
+<div class="sky" id="sky"></div>
+<div class="app">
+  <header class="topbar">
+    <div class="logo">🍬 糖果<span>星球</span></div>
+    <div style="display:flex;gap:7px"><div class="pill"><span>❤️</span><span id="heartTop">5/5</span></div><div class="pill"><span class="coinDot">C</span><span id="coinTop">0</span></div></div>
+  </header>
+
+  <main id="home" class="screen">
+    <section class="hero">
+      <div class="muted" style="color:white;opacity:.8">MATCH • CASCADE • CLEAR</div>
+      <h1>糖果星球<br>50 關大冒險</h1>
+      <p>Swipe 交換糖果，完成每關指定顏色任務；連鎖 Combo 分數更高，三星首次完成可賺金幣！</p>
+      <div class="heroCandy">🍓 🍋 🍏 🫐</div>
+      <button class="primary" onclick="showLevels()">▶ 開始遊戲</button>
+    </section>
+    <div class="homeGrid">
+      <button class="miniCard secondary" onclick="showShop()"><b>🛍️ 道具商店</b><span class="muted">用金幣換強力道具</span></button>
+      <button class="miniCard secondary" onclick="showDev()"><b>🧑‍💻 開發商</b><span class="muted">輸入測試代碼</span></button>
+      <button class="miniCard secondary wideHome" onclick="showCustomLevels()"><b>🧩 自設關卡</b><span class="muted">已儲存 <span id="customCountHome">0</span> 關 · 設計／編輯／遊玩</span></button>
+      <div class="miniCard"><b>❤️ 遊玩生命</b><span class="muted" id="heartHome">5 / 5</span><br><span class="muted heartText" id="heartTimerHome">已滿生命</span></div>
+      <div class="miniCard"><b>🏆 最高關卡</b><span class="muted" id="highestHome">第 1 關</span><br><span class="muted" id="totalStarsHome">⭐ 0 / 150</span></div>
+    </div>
+  </main>
+
+  <main id="levelsScreen" class="screen hidden">
+    <div class="sectionTitle"><button class="backBtn" onclick="goHome()">‹</button><h2>選擇關卡</h2><button class="backBtn" onclick="showShop()">🛍️</button></div>
+    <div id="levels" class="levels"></div>
+  </main>
+
+  <main id="shopScreen" class="screen hidden">
+    <div class="sectionTitle"><button class="backBtn" onclick="goHome()">‹</button><h2>道具商店</h2><div class="pill"><span class="coinDot">C</span><span id="coinShop">0</span></div></div>
+    <div class="shopList">
+      <div class="shopItem"><div class="itemIcon">🔨</div><div class="info"><h3>免費打破</h3><div class="muted">揀 1 粒糖果直接消除，不計步數。</div><div class="muted">持有：<b id="invHammer">0</b></div></div><button class="buyBtn" data-buy="hammer">10 🪙</button></div>
+      <div class="shopItem"><div class="itemIcon">↔️</div><div class="info"><h3>條紋糖製造器</h3><div class="muted">將 1 粒糖果變成橫向／直向消除糖。</div><div class="muted">持有：<b id="invStripe">0</b></div></div><button class="buyBtn" data-buy="stripe">25 🪙</button></div>
+      <div class="shopItem"><div class="itemIcon">🌈</div><div class="info"><h3>百搭糖果</h3><div class="muted">將 1 粒糖果變成彩虹百搭糖，可清除同色糖果。</div><div class="muted">持有：<b id="invRainbow">0</b></div></div><button class="buyBtn" data-buy="rainbow">35 🪙</button></div>
+      <div class="shopItem"><div class="itemIcon">❤️</div><div class="info"><h3>滿心</h3><div class="muted">即時回復至 5 個心，無需等待。</div><div class="muted">目前：<b id="heartShop">5 / 5</b></div></div><button class="buyBtn" data-buy="fullheart">20 🪙</button></div>
+    </div>
+  </main>
+
+  <main id="devScreen" class="screen hidden">
+    <div class="sectionTitle"><button class="backBtn" onclick="goHome()">‹</button><h2>開發商模式</h2><span></span></div>
+    <div class="devCard">
+      <div style="font-size:44px">🧪</div>
+      <h3 style="margin:8px 0 4px">Developer Console</h3>
+      <div class="muted">輸入開發測試代碼。獎勵會儲存在此裝置。</div>
+      <div class="devRow"><input id="devCode" placeholder="輸入代碼" autocomplete="off"><button class="buyBtn" onclick="redeemCode()">確定</button></div>
+    </div>
+  </main>
+
+
+  <main id="customScreen" class="screen hidden">
+    <div class="sectionTitle"><button class="backBtn" onclick="goHome()">‹</button><h2>自設關卡</h2><button class="backBtn" onclick="openDesigner()">＋</button></div>
+    <div class="customHero"><h3>🧩 你的關卡庫</h3><div class="muted">自己設定步數、消除任務、冰層、箱子同版圖。自設關卡會儲存在此瀏覽器；遊玩會扣 1 ❤️，三星不派金幣。</div><button class="primary" onclick="openDesigner()">＋ 設計新關卡</button></div>
+    <div id="customList" class="customList"></div>
+  </main>
+
+  <main id="designerScreen" class="screen hidden">
+    <div class="sectionTitle"><button class="backBtn" onclick="showCustomLevels()">‹</button><h2 id="designerTitle">設計關卡</h2><span></span></div>
+    <div class="designerCard">
+      <h3>⚙️ 基本設定</h3>
+      <div class="fieldGrid"><div class="field"><label>關卡名稱</label><input id="designName" maxlength="24" placeholder="例如：冰箱大作戰"></div><div class="field"><label>步數</label><input id="designMoves" type="number" min="5" max="99" value="20"></div></div>
+    </div>
+    <div class="designerCard">
+      <h3>🎯 消除要求</h3><div class="muted" style="margin-bottom:9px">數量填 0 代表不要求該顏色；最少設定一種。</div>
+      <div id="goalEditor" class="goalEditor"></div>
+    </div>
+    <div class="designerCard">
+      <h3>⭐ 星級分數</h3>
+      <div class="switchRow"><div><b>由電腦自動計算</b><div class="muted">按步數、任務量、障礙耐久及版圖估算</div></div><input id="autoStars" type="checkbox" checked onchange="toggleAutoStars()"></div>
+      <div class="starEditor"><div class="starEdit"><label>⭐ 1 星</label><input id="designStar1" type="number" min="0" step="50"></div><div class="starEdit"><label>⭐⭐ 2 星</label><input id="designStar2" type="number" min="0" step="50"></div><div class="starEdit"><label>⭐⭐⭐ 3 星</label><input id="designStar3" type="number" min="0" step="50"></div></div>
+      <div class="autoNote">自動分數屬估算值。最理想做法係先用自動值建立，再實際試玩幾次；如果三星太易／太難，就關閉自動計算再微調。</div>
+    </div>
+    <div class="designerCard">
+      <h3>🧱 版圖與障礙</h3><div class="muted">先選工具，再點棋盤格。冰層會覆蓋 Candy；箱子會佔據格子；「洞」代表該格不存在。</div>
+      <div id="toolPalette" class="toolPalette"></div><div id="designerBoard" class="designerBoard"></div><div class="designLegend"><span class="tag">❄️ 冰 2 次</span><span class="tag">🧊 超冰 3 次</span><span class="tag">💠 極冰 4 次</span><span class="tag">箱子靠鄰格消除破壞</span></div>
+    </div>
+    <div class="designerActions"><button class="dangerBtn" onclick="resetDesignerBoard()">重設棋盤</button><button class="primary" onclick="saveDesignedLevel()">💾 儲存關卡</button></div>
+  </main>
+
+  <main id="gameScreen" class="gameScreen hidden">
+    <div class="gameHeader"><button class="backBtn" onclick="leaveGame()">‹</button><div class="levelName"><b id="gameLevelTitle">第 1 關</b><small id="gameLevelSub">糖果草原</small></div><div class="pill"><span class="coinDot">C</span><span id="coinGame">0</span></div></div>
+    <div class="status"><div class="stat"><small>步數</small><b id="movesText">0</b></div><div class="stat"><small>分數</small><b id="scoreText">0</b></div><div class="stat"><small>Combo</small><b id="comboText">x1</b></div></div>
+    <div class="goalPanel"><div><b>🎯 關卡任務</b><small class="muted" id="goalSummary">消除指定糖果</small></div><div class="goalList" id="goalList"></div><div class="muted" id="hazardSummary" style="margin-top:8px;font-size:11px"></div></div>
+    <div class="progress"><i id="progressBar"></i></div><div class="starGuide" id="starTargets"></div>
+    <div class="boardWrap"><div id="board" class="board"></div></div>
+    <div class="tools">
+      <button class="tool" data-tool="hammer">🔨<small>免費打破</small><span class="count" id="toolHammerCount">0</span></button>
+      <button class="tool" data-tool="stripe">↔️<small>條紋糖</small><span class="count" id="toolStripeCount">0</span></button>
+      <button class="tool" data-tool="rainbow">🌈<small>百搭糖</small><span class="count" id="toolRainbowCount">0</span></button>
+    </div>
+    <div class="hint" id="hint">按住糖果向上／下／左／右 Swipe 交換。</div>
+  </main>
+</div>
+
+<div id="resultModal" class="modal hidden"><div class="modalCard"><div id="resultEmoji" style="font-size:48px">🎉</div><h2 id="resultTitle">過關！</h2><div class="bigStars" id="resultStars">⭐⭐⭐</div><div class="scoreLine" id="resultScore">分數 0</div><div class="muted" id="resultTask"></div><div class="muted" id="resultMsg" style="margin-top:5px"></div><div class="modalBtns" id="resultBtns"><button class="secondary" id="resultBackBtn" onclick="backToLevelsFromModal()">關卡地圖</button><button class="primary" id="nextBtn" onclick="nextLevel()">下一關</button></div></div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+'use strict';
+const CANDIES=6, TOTAL_LEVELS=50;
+const SAVE_KEY='sugarPlanetSave_v1'; // keep same key for old progress
+const HEART_MAX=5, HEART_MS=10*60*1000;
+const price={hammer:10,stripe:25,rainbow:35,fullheart:20};
+const colorNames=['粉紅','橙黃','青綠','藍色','紫色','紅橙'];
+const levelThemes=[
+'糖果草原','棉花糖谷','朱古力門','冰晶湖','果汁花園','糖霜工場','曲奇迷宮','汽水火山','彩虹橋','焦糖森林',
+'薄荷城堡','蜜糖沙漠','雪糕港口','甜甜圈礦洞','果凍星雲','窩夫王國','爆谷峽谷','櫻桃神殿','糖果迷城','星光糖宮',
+'霜雪車站','銅箱礦場','銀月工房','黃金倉庫','糖軌車廠','冰河彎道','奶油月台','彩糖環線','蜜桃隧道','可可轉車站',
+'超冰堡壘','冰封棋盤','焦糖軌道','果凍機關城','銀箱迷陣','金箱列車','雪霜迴廊','糖果轉盤','百搭工場','極冰山口',
+'極地糖軌','四季箱庭','星砂環線','黃金冰宮','彩虹轉轍站','終極曲奇城','超級糖箱陣','極冰銀河','星光終點站','糖果王冠'
+];
+let candySeq=1;
+
+function buildMask(type){
+  const n=7,m=Array.from({length:n},()=>Array(n).fill(1));
+  const hole=(r,c)=>{if(r>=0&&r<n&&c>=0&&c<n)m[r][c]=0};
+  if(type===1){[[0,0],[0,6],[6,0],[6,6]].forEach(x=>hole(...x));}
+  if(type===2){for(let r=0;r<n;r++)if(r<2||r>4){hole(r,0);hole(r,6)}}
+  if(type===3){for(let c=0;c<n;c++)if(c<2||c>4){hole(0,c);hole(6,c)}}
+  if(type===4){[[0,0],[0,1],[1,0],[0,5],[0,6],[1,6],[5,0],[6,0],[6,1],[5,6],[6,5],[6,6]].forEach(x=>hole(...x));}
+  if(type===5){for(let i=0;i<3;i++){hole(i,i);hole(i,6-i);hole(6-i,i);hole(6-i,6-i)}}
+  if(type===6){for(let r=0;r<n;r++)if(r!==3){hole(r,0);hole(r,6)}}
+  if(type===7){[[0,0],[0,1],[1,0],[0,5],[0,6],[1,6],[5,0],[6,0],[6,1],[5,6],[6,5],[6,6],[3,3]].forEach(x=>hole(...x));}
+  if(type===8){for(let r=0;r<n;r++)for(let c=0;c<n;c++)if((r===0||r===6||c===0||c===6)&&((r+c)%2===0))hole(r,c)}
+  if(type===9){[[0,0],[0,6],[6,0],[6,6],[1,1],[1,5],[5,1],[5,5]].forEach(x=>hole(...x));}
+  if(type===10){for(let i=0;i<n;i++)if(i!==3){hole(0,i);hole(6,i)};hole(1,0);hole(1,6);hole(5,0);hole(5,6)}
+  if(type===11){[[0,0],[0,1],[0,5],[0,6],[1,0],[1,6],[5,0],[5,6],[6,0],[6,1],[6,5],[6,6],[2,2],[2,4],[4,2],[4,4]].forEach(x=>hole(...x));}
+  return m;
+}
+function rectRing(top,left,bottom,right){
+  const p=[];for(let c=left;c<=right;c++)p.push([top,c]);for(let r=top+1;r<=bottom;r++)p.push([r,right]);for(let c=right-1;c>=left;c--)p.push([bottom,c]);for(let r=bottom-1;r>top;r--)p.push([r,left]);return p;
+}
+function buildTrack(mask,style){
+  if(!style)return [];
+  const ring=style===1?rectRing(0,0,6,6):style===2?rectRing(1,1,5,5):rectRing(2,2,4,4);
+  return ring.filter(([r,c])=>mask[r][c]);
+}
+function makeGoals(i){
+  const count=i<2?1:(i<12?2:3), base=i<2?12+i*3:8+Math.floor(i*.08)+Math.floor(i/18);
+  const colors=[];for(let k=0;k<count;k++)colors.push((i*2+k*2+1)%CANDIES);
+  return colors.map((color,k)=>({color,count:base+(k%2)*2}));
+}
+function movesForLevel(lvl){
+  if(lvl===1)return 24;if(lvl===2)return 22;
+  if(lvl<=8)return Math.max(15,18-Math.floor((lvl-3)/2));
+  if(lvl<=20)return Math.max(13,16-Math.floor((lvl-9)/4));
+  if(lvl<=35)return Math.max(13,14-Math.floor((lvl-21)/8));
+  return 13;
+}
+function obstaclePlan(lvl){
+  const p={ice2:0,ice3:0,ice4:0,wood:0,copper:0,silver:0,gold:0};
+  if(lvl>=4)p.ice2=Math.min(8,2+Math.floor((lvl-4)*.28));
+  if(lvl>=13)p.ice3=Math.min(6,1+Math.floor((lvl-13)*.18));
+  if(lvl>=31)p.ice4=Math.min(5,1+Math.floor((lvl-31)*.22));
+  if(lvl>=7)p.wood=Math.min(5,1+Math.floor((lvl-7)*.13));
+  if(lvl>=15)p.copper=Math.min(4,1+Math.floor((lvl-15)*.12));
+  if(lvl>=25)p.silver=Math.min(4,1+Math.floor((lvl-25)*.12));
+  if(lvl>=36)p.gold=Math.min(3,1+Math.floor((lvl-36)*.14));
+  return p;
+}
+const LEVELS=Array.from({length:TOTAL_LEVELS},(_,i)=>{
+  const lvl=i+1,tier=Math.floor(i/5),mask=buildMask(i<4?Math.floor(i/2):(i%12));
+  const star1=1800+i*135+tier*140;
+  const trackMode=lvl<10?null:(['cw','ccw','random'][Math.floor((lvl-10)/5)%3]);
+  const trackStyle=lvl<10?0:1+Math.floor((lvl-10)/14)%3;
+  return {id:lvl,name:levelThemes[i],rows:7,cols:7,moves:movesForLevel(lvl),goals:makeGoals(i),star1,star2:Math.round(star1*1.42),star3:Math.round(star1*1.84),mask,obstacles:obstaclePlan(lvl),trackMode,track:buildTrack(mask,trackStyle)};
+});
+
+let save=loadSave(),game=null,resolving=false,activeTool=null,stripeChoice='h',gesture=null;
+function defaultSave(){return {coins:0,unlocked:1,stars:{},best:{},inventory:{hammer:1,stripe:0,rainbow:0},devRedeemed:false,hearts:5,heartUpdatedAt:Date.now(),customLevels:[],customStats:{}};}
+function loadSave(){
+  try{const x=JSON.parse(localStorage.getItem(SAVE_KEY))||{},d=defaultSave(),merged=Object.assign(d,x,{inventory:Object.assign(d.inventory,x.inventory||{})});
+    if(!Number.isFinite(merged.hearts))merged.hearts=5;merged.hearts=Math.max(0,Math.min(HEART_MAX,merged.hearts));if(!Number.isFinite(merged.heartUpdatedAt))merged.heartUpdatedAt=Date.now();merged.unlocked=Math.max(1,Math.min(TOTAL_LEVELS,Number(merged.unlocked)||1));if(merged.unlocked===20&&merged.best&&merged.best[20]!==undefined)merged.unlocked=21;if(!Array.isArray(merged.customLevels))merged.customLevels=[];if(!merged.customStats||typeof merged.customStats!=='object')merged.customStats={};return merged;
+  }catch(e){return defaultSave();}
+}
+function syncHearts(){const now=Date.now();if(save.hearts>=HEART_MAX){save.hearts=HEART_MAX;save.heartUpdatedAt=now;return false}const elapsed=Math.max(0,now-save.heartUpdatedAt),gained=Math.floor(elapsed/HEART_MS);if(gained>0){save.hearts=Math.min(HEART_MAX,save.hearts+gained);save.heartUpdatedAt=save.hearts>=HEART_MAX?now:save.heartUpdatedAt+gained*HEART_MS;localStorage.setItem(SAVE_KEY,JSON.stringify(save));return true}return false}
+function heartCountdownText(){if(save.hearts>=HEART_MAX)return '已滿生命';const remain=Math.max(0,HEART_MS-(Date.now()-save.heartUpdatedAt)),m=Math.floor(remain/60000),sec=Math.floor((remain%60000)/1000);return `下一個心 ${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`}
+function consumeHeart(){syncHearts();if(save.hearts<=0){toast('❤️ 無生命！每 10 分鐘回 1 心，或去商店用 20 金幣補滿。');updateUI();return false}const wasFull=save.hearts===HEART_MAX;save.hearts--;if(wasFull)save.heartUpdatedAt=Date.now();persist();return true}
+function persist(){localStorage.setItem(SAVE_KEY,JSON.stringify(save));updateUI()}
+function updateUI(){
+  syncHearts();['coinTop','coinShop','coinGame'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=save.coins.toLocaleString()});
+  const ht=`${save.hearts}/${HEART_MAX}`;const top=document.getElementById('heartTop');if(top)top.textContent=ht;const home=document.getElementById('heartHome');if(home)home.textContent=`${save.hearts} / ${HEART_MAX}`;const timer=document.getElementById('heartTimerHome');if(timer)timer.textContent=heartCountdownText();const shopHeart=document.getElementById('heartShop');if(shopHeart)shopHeart.textContent=`${save.hearts} / ${HEART_MAX}`;
+  document.getElementById('invHammer').textContent=save.inventory.hammer;document.getElementById('invStripe').textContent=save.inventory.stripe;document.getElementById('invRainbow').textContent=save.inventory.rainbow;
+  const total=Object.values(save.stars).reduce((a,b)=>a+b,0);document.getElementById('totalStarsHome').textContent=`⭐ ${total} / ${TOTAL_LEVELS*3}`;document.getElementById('highestHome').textContent=`第 ${save.unlocked} 關`;const cc=document.getElementById('customCountHome');if(cc)cc.textContent=(save.customLevels||[]).length;
+  if(game){document.getElementById('toolHammerCount').textContent=save.inventory.hammer;document.getElementById('toolStripeCount').textContent=save.inventory.stripe;document.getElementById('toolRainbowCount').textContent=save.inventory.rainbow}
+  document.querySelectorAll('[data-buy]').forEach(b=>{b.disabled=save.coins<price[b.dataset.buy]||(b.dataset.buy==='fullheart'&&save.hearts>=HEART_MAX)});
+}
+function hideAll(){['home','levelsScreen','shopScreen','devScreen','customScreen','designerScreen','gameScreen'].forEach(id=>document.getElementById(id).classList.add('hidden'))}
+function goHome(){hideAll();document.getElementById('home').classList.remove('hidden');updateUI()}
+function showLevels(){hideAll();renderLevels();document.getElementById('levelsScreen').classList.remove('hidden');updateUI()}
+function showShop(){hideAll();updateUI();document.getElementById('shopScreen').classList.remove('hidden')}
+function showDev(){hideAll();document.getElementById('devScreen').classList.remove('hidden');setTimeout(()=>document.getElementById('devCode').focus(),120)}
+function renderLevels(){const root=document.getElementById('levels');root.innerHTML='';LEVELS.forEach(l=>{const stars=save.stars[l.id]||0,locked=l.id>save.unlocked,b=document.createElement('button');b.className='level '+(locked?'locked ':'')+(save.best[l.id]!==undefined?'cleared':'');b.innerHTML=locked?`<span class="lock">🔒</span><div class="stars">第 ${l.id} 關</div>`:`${l.id}<div class="stars">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</div>`;if(!locked)b.onclick=()=>startLevel(l.id);root.appendChild(b)})}
+
+const DESIGN_TOOLS=[
+  ['normal','🍬 普通格'],['hole','⬛ 洞'],['ice2','❄️ 結冰'],['ice3','🧊 超結冰'],['ice4','💠 極結冰'],['wood','🪵 木箱'],['copper','🟫 銅箱'],['silver','⬜ 銀箱'],['gold','🟨 金箱']
+];
+let designer=null;
+function showCustomLevels(){hideAll();document.getElementById('customScreen').classList.remove('hidden');renderCustomLevels();updateUI()}
+function renderCustomLevels(){
+  const root=document.getElementById('customList'),levels=save.customLevels||[];root.innerHTML='';
+  if(!levels.length){root.innerHTML='<div class="emptyState"><div style="font-size:42px">🧩</div><h3>未有自設關卡</h3><div class="muted">按「設計新關卡」建立第一關。</div></div>';return}
+  levels.forEach((l,i)=>{const st=save.customStats[l.uid]||{stars:0,best:0},obs=l.obstacles||{},d=document.createElement('div');d.className='customCard';const hazards=(obs.ice2||0)+(obs.ice3||0)+(obs.ice4||0)+(obs.wood||0)+(obs.copper||0)+(obs.silver||0)+(obs.gold||0);d.innerHTML=`<div class="customCardTop"><div><h3>${escapeHtml(l.name||`自設關卡 ${i+1}`)}</h3><div class="muted">${'★'.repeat(st.stars||0)}${'☆'.repeat(3-(st.stars||0))}　最高 ${Number(st.best||0).toLocaleString()}</div></div><span class="customBadge">CUSTOM</span></div><div class="customMeta"><span class="tag">👣 ${l.moves} 步</span><span class="tag">🎯 ${l.goals.length} 色任務</span><span class="tag">🧱 ${hazards} 障礙</span></div><div class="cardActions"><button class="playBtn">▶ 遊玩</button><button class="editBtn">✏️ 編輯</button><button class="deleteBtn">🗑️ 刪除</button></div>`;const [play,edit,del]=d.querySelectorAll('button');play.onclick=()=>startCustomLevel(l.uid);edit.onclick=()=>openDesigner(l.uid);del.onclick=()=>deleteCustomLevel(l.uid);root.appendChild(d)})
+}
+function escapeHtml(v){return String(v).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]))}
+function makeBlankDesigner(editingId=null){return {editingId,tool:'normal',cells:Array.from({length:7},()=>Array.from({length:7},()=>({type:'normal'})))}}
+function openDesigner(uid=null){
+  hideAll();document.getElementById('designerScreen').classList.remove('hidden');designer=makeBlankDesigner(uid);const existing=uid?(save.customLevels||[]).find(x=>x.uid===uid):null;
+  document.getElementById('designerTitle').textContent=existing?'編輯自設關卡':'設計關卡';document.getElementById('designName').value=existing?.name||`我的關卡 ${(save.customLevels||[]).length+1}`;document.getElementById('designMoves').value=existing?.moves||20;
+  buildGoalEditor(existing);buildToolPalette();
+  if(existing){
+    for(let r=0;r<7;r++)for(let c=0;c<7;c++)if(!existing.mask[r][c])designer.cells[r][c]={type:'hole'};
+    (existing.customSetup?.ice||[]).forEach(x=>designer.cells[x.r][x.c]={type:'ice'+x.hp});
+    (existing.customSetup?.blocks||[]).forEach(x=>designer.cells[x.r][x.c]={type:x.type});
+  }
+  document.getElementById('autoStars').checked=existing?existing.starModeAuto!==false:true;
+  document.getElementById('designStar1').value=existing?.star1||0;document.getElementById('designStar2').value=existing?.star2||0;document.getElementById('designStar3').value=existing?.star3||0;
+  renderDesignerBoard();toggleAutoStars();if(!existing||document.getElementById('autoStars').checked)updateAutoStarPreview()
+}
+function buildGoalEditor(existing){const root=document.getElementById('goalEditor');root.innerHTML='';for(let i=0;i<CANDIES;i++){const old=existing?.goals?.find(g=>g.color===i)?.count||0,d=document.createElement('div');d.className='goalEdit';d.innerHTML=`<div class="goalEditHead"><i class="c${i}"></i>${colorNames[i]}</div><input id="goalCount${i}" type="number" min="0" max="99" value="${old}" inputmode="numeric">`;root.appendChild(d);d.querySelector('input').addEventListener('input',updateAutoStarPreview)}}
+function buildToolPalette(){const root=document.getElementById('toolPalette');root.innerHTML='';DESIGN_TOOLS.forEach(([id,label])=>{const b=document.createElement('button');b.className='designTool'+(designer.tool===id?' active':'');b.textContent=label;b.onclick=()=>{designer.tool=id;root.querySelectorAll('.designTool').forEach(x=>x.classList.remove('active'));b.classList.add('active')};root.appendChild(b)})}
+function renderDesignerBoard(){const root=document.getElementById('designerBoard');root.innerHTML='';for(let r=0;r<7;r++)for(let c=0;c<7;c++){const state=designer.cells[r][c],b=document.createElement('button');b.className='designCell'+(state.type==='hole'?' hole':'');const icons={normal:'🍬',hole:'',wood:'🪵',copper:'🟫',silver:'⬜',gold:'🟨'};if(state.type.startsWith('ice')){const hp=Number(state.type.slice(3));b.innerHTML=`🍬<span class="miniIce">❄ ${hp}</span>`}else b.textContent=icons[state.type]??'🍬';b.onclick=()=>paintDesignCell(r,c);root.appendChild(b)}}
+function paintDesignCell(r,c){designer.cells[r][c]={type:designer.tool};renderDesignerBoard();updateAutoStarPreview()}
+function resetDesignerBoard(){if(!designer)return;designer.cells=Array.from({length:7},()=>Array.from({length:7},()=>({type:'normal'})));renderDesignerBoard();updateAutoStarPreview();toast('棋盤已重設')}
+function designerGoals(){const goals=[];for(let i=0;i<CANDIES;i++){const count=Math.max(0,Math.min(99,Number(document.getElementById(`goalCount${i}`)?.value)||0));if(count>0)goals.push({color:i,count})}return goals}
+function designerSetup(){const mask=Array.from({length:7},()=>Array(7).fill(1)),ice=[],blocks=[],obstacles={ice2:0,ice3:0,ice4:0,wood:0,copper:0,silver:0,gold:0};for(let r=0;r<7;r++)for(let c=0;c<7;c++){const t=designer.cells[r][c].type;if(t==='hole')mask[r][c]=0;else if(t.startsWith('ice')){const hp=Number(t.slice(3));ice.push({r,c,hp});obstacles['ice'+hp]++}else if(['wood','copper','silver','gold'].includes(t)){const hp=t==='wood'?1:t==='copper'?2:3;blocks.push({r,c,type:t,hp});obstacles[t]++}}return {mask,ice,blocks,obstacles}}
+function round50(n){return Math.max(0,Math.round(n/50)*50)}
+function calculateCustomStarTargets(){const moves=Math.max(5,Math.min(99,Number(document.getElementById('designMoves').value)||20)),goals=designerGoals(),setup=designerSetup(),goalTotal=goals.reduce((a,g)=>a+g.count,0),iceEffort=setup.ice.reduce((a,x)=>a+x.hp,0),blockEffort=setup.blocks.reduce((a,x)=>a+x.hp,0),playable=setup.mask.flat().filter(Boolean).length-setup.blocks.length,density=Math.max(0,(32-Math.max(1,playable))*35),tightness=Math.max(0,20-moves)*55,base=Math.max(900,goalTotal*100+iceEffort*55+blockEffort*105+density+tightness);const s1=round50(base*.55),s2=Math.max(s1+300,round50(base*.78)),s3=Math.max(s2+400,round50(base*1.02));return [s1,s2,s3]}
+function toggleAutoStars(){const auto=document.getElementById('autoStars').checked;['designStar1','designStar2','designStar3'].forEach(id=>document.getElementById(id).disabled=auto);if(auto)updateAutoStarPreview()}
+function updateAutoStarPreview(){if(!designer||!document.getElementById('autoStars')?.checked)return;const [a,b,c]=calculateCustomStarTargets();document.getElementById('designStar1').value=a;document.getElementById('designStar2').value=b;document.getElementById('designStar3').value=c}
+document.addEventListener('input',e=>{if(e.target?.id==='designMoves')updateAutoStarPreview()});
+function saveDesignedLevel(){
+  if(!designer)return;const name=document.getElementById('designName').value.trim()||'未命名關卡',moves=Math.max(5,Math.min(99,Number(document.getElementById('designMoves').value)||20)),goals=designerGoals();if(!goals.length)return toast('請至少設定一種 Candy 消除要求');const setup=designerSetup(),candyCells=setup.mask.flat().filter(Boolean).length-setup.blocks.length;if(candyCells<18)return toast('可放 Candy 的格數太少，至少保留 18 格');let hasTriple=false;for(let r=0;r<7;r++)for(let c=0;c<7;c++){const ok=(rr,cc)=>rr>=0&&rr<7&&cc>=0&&cc<7&&setup.mask[rr][cc]&&!setup.blocks.some(b=>b.r===rr&&b.c===cc);if(ok(r,c)&&((ok(r,c+1)&&ok(r,c+2))||(ok(r+1,c)&&ok(r+2,c))))hasTriple=true}if(!hasTriple)return toast('版圖至少要有一段連續 3 格可放 Candy');if(document.getElementById('autoStars').checked)updateAutoStarPreview();const star1=Math.max(0,Number(document.getElementById('designStar1').value)||0),star2=Math.max(0,Number(document.getElementById('designStar2').value)||0),star3=Math.max(0,Number(document.getElementById('designStar3').value)||0);if(!(star1>0&&star1<star2&&star2<star3))return toast('星級分數必須係正數，而且 1 星 < 2 星 < 3 星');const uid=designer.editingId||('custom_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7)),level={uid,id:uid,custom:true,name,moves,rows:7,cols:7,goals,star1,star2,star3,starModeAuto:document.getElementById('autoStars').checked,mask:setup.mask,customSetup:{ice:setup.ice,blocks:setup.blocks},obstacles:setup.obstacles,trackMode:null,track:[]};const idx=(save.customLevels||[]).findIndex(x=>x.uid===uid);if(idx>=0)save.customLevels[idx]=level;else save.customLevels.push(level);persist();toast(idx>=0?'自設關卡已更新':'自設關卡已儲存');showCustomLevels()
+}
+function deleteCustomLevel(uid){const level=(save.customLevels||[]).find(x=>x.uid===uid);if(!level)return;if(!confirm(`刪除「${level.name}」？此操作不能復原。`))return;save.customLevels=save.customLevels.filter(x=>x.uid!==uid);delete save.customStats[uid];persist();renderCustomLevels();toast('已刪除自設關卡')}
+function startCustomLevel(uid){const src=(save.customLevels||[]).find(x=>x.uid===uid);if(!src)return toast('找不到自設關卡');if(!consumeHeart()){showCustomLevels();return false}const cfg=JSON.parse(JSON.stringify(src));hideAll();document.getElementById('gameScreen').classList.remove('hidden');game={cfg,score:0,moves:cfg.moves,board:[],ice:[],blocks:[],ended:false,collected:Array(CANDIES).fill(0),combo:1,passed:false};activeTool=null;resolving=false;document.querySelectorAll('.tool').forEach(x=>x.classList.remove('active'));initBoard();document.getElementById('gameLevelTitle').textContent='自設關卡';document.getElementById('gameLevelSub').textContent=cfg.name;renderBoard();updateGameHUD();updateUI();setHint('自設關卡：Swipe 交換 Candy。完成任務就過關；星數只計表現。');return true}
+
+
+document.querySelectorAll('[data-buy]').forEach(btn=>btn.addEventListener('click',()=>{const t=btn.dataset.buy,cost=price[t];if(save.coins<cost)return toast('金幣不足');if(t==='fullheart'){syncHearts();if(save.hearts>=HEART_MAX)return toast('生命已經全滿');save.coins-=cost;save.hearts=HEART_MAX;save.heartUpdatedAt=Date.now();persist();toast('❤️ 已補滿 5 個心！');return}save.coins-=cost;save.inventory[t]++;persist();toast('購買成功！')}));
+document.querySelectorAll('[data-tool]').forEach(btn=>btn.addEventListener('click',()=>{if(!game||resolving)return;const t=btn.dataset.tool;if(save.inventory[t]<=0){toast('道具用完，可去商店購買');return}if(activeTool===t){activeTool=null;btn.classList.remove('active');setHint('按住糖果向上／下／左／右 Swipe 交換。');return}activeTool=t;document.querySelectorAll('.tool').forEach(x=>x.classList.remove('active'));btn.classList.add('active');setHint(t==='hammer'?'輕觸一粒糖果直接打破（不扣步數，無視冰層）':t==='stripe'?'輕觸一粒糖果，變成條紋糖（方向交替）':'輕觸一粒糖果變成彩虹百搭糖')}));
+function redeemCode(){const input=document.getElementById('devCode'),code=input.value.trim();if(code==='test'){save.coins=99999;save.devRedeemed=true;persist();input.value='';toast('開發商獎勵：99,999 金幣！')}else toast('代碼無效')}
+
+function startLevel(id){
+  if(id>save.unlocked||id<1||id>TOTAL_LEVELS)return false;if(!consumeHeart()){document.getElementById('resultModal').classList.add('hidden');showLevels();return false}
+  const cfg=LEVELS[id-1];hideAll();document.getElementById('gameScreen').classList.remove('hidden');game={cfg,score:0,moves:cfg.moves,board:[],ice:[],blocks:[],ended:false,collected:Array(CANDIES).fill(0),combo:1,passed:false};activeTool=null;resolving=false;document.querySelectorAll('.tool').forEach(x=>x.classList.remove('active'));
+  initBoard();document.getElementById('gameLevelTitle').textContent=`第 ${id} 關`;document.getElementById('gameLevelSub').textContent=cfg.name;renderBoard();updateGameHUD();updateUI();setHint(cfg.trackMode?`Swipe 交換。此關有路軌：${trackModeName(cfg.trackMode)}移動。`:'按住糖果向上／下／左／右 Swipe 交換。');return true;
+}
+function newCandy(color=Math.floor(Math.random()*CANDIES),special=null){return {id:candySeq++,color,special}}
+function trackModeName(m){return m==='cw'?'順方向':m==='ccw'?'反方向':'隨機方向'}
+function isTrackCell(r,c){return !!game?.trackSet?.has(key(r,c))}
+function initBoard(){
+  const {rows,cols,mask}=game.cfg,track=game.cfg.track||[];game.board=Array.from({length:rows},()=>Array(cols).fill(null));game.ice=Array.from({length:rows},()=>Array(cols).fill(0));game.blocks=Array.from({length:rows},()=>Array(cols).fill(null));game.trackSet=new Set(track.map(([r,c])=>key(r,c)));
+  let candidates=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)if(mask[r][c])candidates.push([r,c]);
+  if(game.cfg.customSetup){
+    (game.cfg.customSetup.blocks||[]).forEach(x=>{if(mask[x.r]?.[x.c])game.blocks[x.r][x.c]={type:x.type,hp:x.hp,maxHp:x.hp}});
+    for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)if(mask[r][c]&&!game.blocks[r][c])game.board[r][c]=makeCandyAvoidMatch(r,c);
+    (game.cfg.customSetup.ice||[]).forEach(x=>{if(mask[x.r]?.[x.c]&&!game.blocks[x.r][x.c])game.ice[x.r][x.c]=x.hp});
+  }else{
+    const obstacles=game.cfg.obstacles||{ice2:0,ice3:0,ice4:0,wood:0,copper:0,silver:0,gold:0},boxCells=candidates.filter(([r,c])=>!game.trackSet.has(key(r,c)));shuffle(boxCells);let bi=0;
+    const boxSpecs=[['gold',3,obstacles.gold],['silver',3,obstacles.silver],['copper',2,obstacles.copper],['wood',1,obstacles.wood]];
+    for(const [type,hp,count] of boxSpecs)for(let i=0;i<count&&bi<boxCells.length;i++){const [r,c]=boxCells[bi++];game.blocks[r][c]={type,hp,maxHp:hp}}
+    for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)if(mask[r][c]&&!game.blocks[r][c])game.board[r][c]=makeCandyAvoidMatch(r,c);
+    let iceCells=candidates.filter(([r,c])=>!game.blocks[r][c]);shuffle(iceCells);let ii=0;
+    for(const [hp,count] of [[4,obstacles.ice4],[3,obstacles.ice3],[2,obstacles.ice2]])for(let i=0;i<count&&ii<iceCells.length;i++){const [r,c]=iceCells[ii++];game.ice[r][c]=hp}
+  }
+  if(findMatches().size)reshuffleBoard();if(!hasPossibleMove())reshuffleBoard();
+}
+function makeCandyAvoidMatch(r,c){let color=Math.floor(Math.random()*CANDIES),tries=0;while(tries++<30){const badH=c>=2&&game.board[r][c-1]?.color===color&&game.board[r][c-2]?.color===color,badV=r>=2&&game.board[r-1][c]?.color===color&&game.board[r-2][c]?.color===color;if(!badH&&!badV)break;color=Math.floor(Math.random()*CANDIES)}return newCandy(color)}
+function safeReplacementColor(r,c){
+  const banned=[];for(let color=0;color<CANDIES;color++){
+    const L=c>1&&game.board[r][c-1]?.color===color&&game.board[r][c-2]?.color===color,R=c<game.cfg.cols-2&&game.board[r][c+1]?.color===color&&game.board[r][c+2]?.color===color,LR=c>0&&c<game.cfg.cols-1&&game.board[r][c-1]?.color===color&&game.board[r][c+1]?.color===color,U=r>1&&game.board[r-1][c]?.color===color&&game.board[r-2][c]?.color===color,D=r<game.cfg.rows-2&&game.board[r+1][c]?.color===color&&game.board[r+2][c]?.color===color,UD=r>0&&r<game.cfg.rows-1&&game.board[r-1][c]?.color===color&&game.board[r+1][c]?.color===color;if(L||R||LR||U||D||UD)banned.push(color)
+  }
+  const choices=[0,1,2,3,4,5].filter(x=>!banned.includes(x));return choices.length?choices[Math.floor(Math.random()*choices.length)]:Math.floor(Math.random()*CANDIES)
+}
+function renderBoard(dropInfo=null,railPulse=false){
+  if(!game)return;const b=document.getElementById('board'),{rows,cols,mask,trackMode}=game.cfg;b.style.gridTemplateColumns=`repeat(${cols},1fr)`;b.innerHTML='';
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    const cell=document.createElement('div');cell.className='cell';cell.dataset.r=r;cell.dataset.c=c;
+    if(!mask[r][c])cell.classList.add('hole');else{
+      if(isTrackCell(r,c)){cell.classList.add('track');if(trackMode)cell.classList.add(trackMode)}
+      const block=game.blocks[r][c];if(block){cell.classList.add('block',block.type);const icons={wood:'🪵',copper:'🟫',silver:'⬜',gold:'🟨'};cell.innerHTML=`<span class="boxIcon">${icons[block.type]}</span><span class="boxHp">${block.hp}</span>`}
+      else{const candy=game.board[r][c];if(candy){const d=document.createElement('div');d.className=`candy c${candy.color}`+(railPulse&&isTrackCell(r,c)?' railShift':'');d.dataset.r=r;d.dataset.c=c;d.dataset.id=candy.id;if(candy.special)d.dataset.special=candy.special;if(dropInfo&&dropInfo[candy.id]){d.classList.add('falling');d.style.setProperty('--dropY',`${-dropInfo[candy.id]*105}%`)}d.addEventListener('pointerdown',onCandyPointerDown);d.addEventListener('pointerup',onCandyPointerUp);d.addEventListener('pointercancel',()=>gesture=null);cell.appendChild(d)}
+        if(game.ice[r][c]>0){const ice=document.createElement('div');ice.className='ice'+(game.ice[r][c]>=4?' extreme':game.ice[r][c]>=3?' super':'');ice.dataset.hp=game.ice[r][c];cell.appendChild(ice)}
+      }
+    }b.appendChild(cell)
+  }
+}
+function onCandyPointerDown(e){if(!game||game.ended||resolving)return;e.preventDefault();gesture={r:+e.currentTarget.dataset.r,c:+e.currentTarget.dataset.c,x:e.clientX,y:e.clientY,id:e.pointerId};try{e.currentTarget.setPointerCapture(e.pointerId)}catch(_){}}
+function onCandyPointerUp(e){
+  if(!gesture||gesture.id!==e.pointerId||!game||resolving){gesture=null;return}e.preventDefault();const g=gesture;gesture=null,dx=e.clientX-g.x,dy=e.clientY-g.y,dist=Math.hypot(dx,dy);
+  if(activeTool){if(dist<25)useTool(activeTool,g.r,g.c);else toast('使用道具時請輕觸糖果');return}if(dist<20){toast('請 Swipe 糖果去相鄰格');return}let dr=0,dc=0;if(Math.abs(dx)>Math.abs(dy))dc=dx>0?1:-1;else dr=dy>0?1:-1;const r2=g.r+dr,c2=g.c+dc;if(r2<0||r2>=game.cfg.rows||c2<0||c2>=game.cfg.cols||!game.cfg.mask[r2][c2]||game.blocks[r2][c2]||!game.board[r2][c2]){toast('呢個方向唔可以交換');return}swapAndResolve({r:g.r,c:g.c},{r:r2,c:c2})
+}
+async function animateSwap(a,b){
+  const elA=document.querySelector(`.candy[data-r="${a.r}"][data-c="${a.c}"]`),elB=document.querySelector(`.candy[data-r="${b.r}"][data-c="${b.c}"]`);if(!elA||!elB){await sleep(80);return}
+  const ra=elA.getBoundingClientRect(),rb=elB.getBoundingClientRect(),dx=rb.left-ra.left,dy=rb.top-ra.top;elA.classList.add('swapping');elB.classList.add('swapping');requestAnimationFrame(()=>{elA.style.transform=`translate(${dx}px,${dy}px) scale(.98)`;elB.style.transform=`translate(${-dx}px,${-dy}px) scale(.98)`});await sleep(190)
+}
+async function swapAndResolve(a,b){
+  resolving=true;const ca=game.board[a.r][a.c],cb=game.board[b.r][b.c];await animateSwap(a,b);game.board[a.r][a.c]=cb;game.board[b.r][b.c]=ca;renderBoard();
+  let matches=findMatches();const rainbowA=ca?.special==='rainbow',rainbowB=cb?.special==='rainbow';if(rainbowA||rainbowB){const target=rainbowA?cb?.color:ca?.color,rr=rainbowA?b:a;matches=new Set([key(rr.r,rr.c)]);for(let r=0;r<game.cfg.rows;r++)for(let c=0;c<game.cfg.cols;c++)if(game.board[r][c]?.color===target)matches.add(key(r,c))}
+  if(matches.size===0){await animateSwap(a,b);game.board[a.r][a.c]=ca;game.board[b.r][b.c]=cb;renderBoard();resolving=false;return}
+  game.moves--;game.combo=1;updateGameHUD();await resolveMatches(matches,a,b,1);await cascade();resolving=false;renderBoard();updateGameHUD();checkEnd()
+}
+function matchColor(candy){return candy&&candy.special!=='rainbow'?candy.color:null}
+function findMatches(){
+  const s=new Set(),{rows,cols}=game.cfg;for(let r=0;r<rows;r++){let run=[];for(let c=0;c<=cols;c++){const x=c<cols?game.board[r][c]:null;if(x&&!game.blocks[r][c]){if(run.length&&matchColor(game.board[r][run[0]])===matchColor(x)&&matchColor(x)!==null)run.push(c);else{if(run.length>=3)run.forEach(cc=>s.add(key(r,cc)));run=[c]}}else{if(run.length>=3)run.forEach(cc=>s.add(key(r,cc)));run=[]}}}
+  for(let c=0;c<cols;c++){let run=[];for(let r=0;r<=rows;r++){const x=r<rows?game.board[r][c]:null;if(x&&!game.blocks[r][c]){if(run.length&&matchColor(game.board[run[0]][c])===matchColor(x)&&matchColor(x)!==null)run.push(r);else{if(run.length>=3)run.forEach(rr=>s.add(key(rr,c)));run=[r]}}else{if(run.length>=3)run.forEach(rr=>s.add(key(rr,c)));run=[]}}}return s
+}
+function comboMultiplier(combo){return combo===1?1:combo===2?1.5:combo===3?2:2.5+(combo-4)*.25}
+function collectCandy(candy){if(!candy||candy.special==='rainbow')return;const goal=game.cfg.goals.find(g=>g.color===candy.color);if(goal)game.collected[candy.color]++}
+function hitFrozenOrRemove(r,c,mult){
+  const candy=game.board[r][c];if(!candy)return false;
+  if(game.ice[r][c]>1){game.ice[r][c]--;game.score+=Math.round(55*mult);game.board[r][c]=newCandy(safeReplacementColor(r,c));return false}
+  if(game.ice[r][c]===1){game.ice[r][c]=0;game.score+=Math.round(55*mult)}
+  collectCandy(candy);game.score+=Math.round(100*mult);game.board[r][c]=null;damageAdjacentBlocks(r,c);return true
+}
+async function resolveMatches(matches,swapA=null,swapB=null,combo=1){
+  let positions=[...matches].map(parseKey);if(!positions.length)return;const rawMatchCount=positions.length,specialsToFire=[];positions.forEach(({r,c})=>{const sp=game.board[r][c]?.special;if(sp==='h'||sp==='v')specialsToFire.push({r,c,sp})});
+  let create=null;if(rawMatchCount>=5){const p=swapB&&matches.has(key(swapB.r,swapB.c))?{...swapB}:positions[0];if(!game.ice[p.r][p.c])create={...p,special:'rainbow'}}else if(rawMatchCount===4){const horizontal=positions.every(p=>p.r===positions[0].r),p=swapB&&matches.has(key(swapB.r,swapB.c))?{...swapB}:positions[0];if(!game.ice[p.r][p.c])create={...p,special:horizontal?'h':'v'}}
+  let expanded=new Set(matches);specialsToFire.forEach(({r,c,sp})=>{if(sp==='h')for(let cc=0;cc<game.cfg.cols;cc++)if(game.board[r][cc])expanded.add(key(r,cc));if(sp==='v')for(let rr=0;rr<game.cfg.rows;rr++)if(game.board[rr][c])expanded.add(key(rr,c))});positions=[...expanded].map(parseKey);const mult=comboMultiplier(combo);let railHits=0;
+  positions.forEach(({r,c})=>{if(create&&r===create.r&&c===create.c)return;const removed=hitFrozenOrRemove(r,c,mult);if(removed&&isTrackCell(r,c))railHits++});
+  if(rawMatchCount===4)game.score+=Math.round(180*mult);if(rawMatchCount>=5)game.score+=Math.round(420*mult);
+  if(create){const old=game.board[create.r][create.c];if(old)collectCandy(null);game.board[create.r][create.c]=newCandy(create.special==='rainbow'?0:(old?.color??Math.floor(Math.random()*CANDIES)),create.special)}
+  game.combo=combo;renderBoard();updateGameHUD();if(combo>=2)toast(`🔥 Combo x${combo} · ${mult}倍分數`);await sleep(155);if(railHits>0)await moveRails(railHits)
+}
+function positionMap(){const m={};for(let r=0;r<game.cfg.rows;r++)for(let c=0;c<game.cfg.cols;c++){const x=game.board[r][c];if(x)m[x.id]=r}return m}
+async function cascade(){
+  let combo=1,loops=0;while(loops++<14){const oldRows=positionMap(),dropInfo=applyGravity(oldRows);renderBoard(dropInfo);await sleep(245);const m=findMatches();if(!m.size)break;combo++;await resolveMatches(m,null,null,combo)}game.combo=1;if(!hasPossibleMove()){toast('無可行配對，自動洗牌');reshuffleBoard();renderBoard()}
+}
+function applyGravity(oldRows={}){
+  const {rows,cols,mask}=game.cfg,dropInfo={};for(let c=0;c<cols;c++){let segments=[],seg=[];for(let r=rows-1;r>=-1;r--){const valid=r>=0&&mask[r][c]&&!game.blocks[r][c];if(valid)seg.push(r);else if(seg.length){segments.push(seg);seg=[]}}segments.forEach(rs=>{const candies=rs.map(r=>game.board[r][c]).filter(Boolean);rs.forEach((r,i)=>{let candy=candies[i];if(!candy)candy=newCandy();game.board[r][c]=candy;const old=oldRows[candy.id];dropInfo[candy.id]=old===undefined?Math.max(1,rs.length-i):Math.max(0,r-old)})})}return dropInfo
+}
+function damageAdjacentBlocks(r,c){
+  [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr,dc])=>{const rr=r+dr,cc=c+dc;if(rr<0||rr>=game.cfg.rows||cc<0||cc>=game.cfg.cols)return;const b=game.blocks[rr][cc];if(!b)return;b.hp--;game.score+=80;if(b.hp<=0){game.blocks[rr][cc]=null;game.board[rr][cc]=null;game.score+=120}})
+}
+async function moveRails(hits){
+  const path=game.cfg.track;if(!path.length)return;for(let n=0;n<hits;n++){
+    let dir=game.cfg.trackMode==='cw'?1:game.cfg.trackMode==='ccw'?-1:(Math.random()<.5?1:-1);const vals=path.map(([r,c])=>game.blocks[r][c]?null:game.board[r][c]);const rotated=vals.map((_,i)=>vals[(i-dir+vals.length)%vals.length]);path.forEach(([r,c],i)=>{if(!game.blocks[r][c])game.board[r][c]=rotated[i]});renderBoard(null,true);await sleep(150)
+  }
+}
+function useTool(t,r,c){
+  if(save.inventory[t]<=0||!game.board[r][c])return;save.inventory[t]--;activeTool=null;document.querySelectorAll('.tool').forEach(x=>x.classList.remove('active'));
+  if(t==='hammer'){const candy=game.board[r][c];collectCandy(candy);game.score+=100;game.ice[r][c]=0;game.board[r][c]=null;damageAdjacentBlocks(r,c);const rail=isTrackCell(r,c);resolving=true;renderBoard();setTimeout(async()=>{if(rail)await moveRails(1);await cascade();resolving=false;renderBoard();updateGameHUD();checkEnd()},90)}
+  else if(t==='stripe'){game.board[r][c].special=stripeChoice;stripeChoice=stripeChoice==='h'?'v':'h';toast(`已變成${game.board[r][c].special==='h'?'橫向':'直向'}條紋糖`);renderBoard()}
+  else if(t==='rainbow'){game.board[r][c].special='rainbow';toast('已變成彩虹百搭糖');renderBoard()}
+  persist();setHint('按住糖果向上／下／左／右 Swipe 交換。')
+}
+function goalsComplete(){return game.cfg.goals.every(g=>game.collected[g.color]>=g.count)}
+function renderGoals(){const root=document.getElementById('goalList');root.innerHTML='';game.cfg.goals.forEach(g=>{const got=Math.min(game.collected[g.color],g.count),done=got>=g.count,d=document.createElement('div');d.className='goalChip'+(done?' goalDone':'');d.innerHTML=`<span class="goalDot c${g.color}"></span>${colorNames[g.color]} ${got}/${g.count}${done?' ✓':''}`;root.appendChild(d)});const doneCount=game.cfg.goals.filter(g=>game.collected[g.color]>=g.count).length;document.getElementById('goalSummary').textContent=`${doneCount}/${game.cfg.goals.length} 項完成`}
+function updateGameHUD(){if(!game)return;document.getElementById('movesText').textContent=game.moves;document.getElementById('scoreText').textContent=game.score.toLocaleString();document.getElementById('comboText').textContent=`x${game.combo||1}`;renderGoals();const cfg=game.cfg;document.getElementById('progressBar').style.width=Math.min(100,game.score/cfg.star3*100)+'%';document.getElementById('starTargets').textContent=`⭐ ${cfg.star1.toLocaleString()}　⭐⭐ ${cfg.star2.toLocaleString()}　⭐⭐⭐ ${cfg.star3.toLocaleString()}`;const o=cfg.obstacles,parts=[];if(o.ice2)parts.push('❄️ 結冰×2');if(o.ice3)parts.push('🧊 超結冰×3');if(o.ice4)parts.push('💠 極結冰×4');if(o.wood)parts.push('🪵 木箱×1');if(o.copper)parts.push('🟫 銅箱×2');if(o.silver)parts.push('⬜ 銀箱×3');if(o.gold)parts.push('🟨 金箱×3');if(cfg.trackMode)parts.push(`🛤️ 路軌：${trackModeName(cfg.trackMode)}`);document.getElementById('hazardSummary').textContent=parts.length?'障礙：'+parts.join(' · '):'此關沒有特殊障礙'}
+function calculateStars(score=game.score){const c=game.cfg;if(score>=c.star3)return 3;if(score>=c.star2)return 2;if(score>=c.star1)return 1;return 0}
+function checkEnd(){if(game.ended)return;if(goalsComplete()){const bonus=Math.max(0,game.moves)*100;game.score+=bonus;updateGameHUD();endGame(calculateStars(),true,bonus);return}if(game.moves<=0)endGame(calculateStars(),false,0)}
+function endGame(stars,passed,bonus=0){
+  game.ended=true;game.passed=passed;const id=game.cfg.id,isCustom=!!game.cfg.custom;let coinWon=false;
+  if(passed){
+    if(isCustom){const old=save.customStats[id]||{stars:0,best:0};save.customStats[id]={stars:Math.max(old.stars||0,stars),best:Math.max(old.best||0,game.score)};persist()}
+    else{const oldStars=save.stars[id]||0;save.stars[id]=Math.max(oldStars,stars);save.best[id]=Math.max(save.best[id]||0,game.score);if(id<TOTAL_LEVELS)save.unlocked=Math.max(save.unlocked,id+1);if(stars===3&&oldStars<3){save.coins++;coinWon=true}persist()}
+  }
+  document.getElementById('resultEmoji').textContent=passed?'🎉':'🍭';document.getElementById('resultTitle').textContent=passed?'任務完成！':'任務未完成';document.getElementById('resultStars').textContent='⭐'.repeat(stars)+'☆'.repeat(3-stars);document.getElementById('resultScore').textContent=`分數 ${game.score.toLocaleString()}${bonus?`（剩餘步數獎勵 +${bonus.toLocaleString()}）`:''}`;document.getElementById('resultTask').textContent=game.cfg.goals.map(g=>`${colorNames[g.color]} ${Math.min(game.collected[g.color],g.count)}/${g.count}`).join(' · ');
+  document.getElementById('resultMsg').textContent=isCustom?(passed?`${stars} 星完成自設關卡。自設關卡不派金幣，避免利用自製簡單關卡刷幣。`:'步數用完前要完成所有指定顏色數量；星星唔影響過關資格。'):(passed?(coinWon?'三星首次達成，獲得 1 金幣！':stars===0?'0 星都可以過關：任務完成，下一關已解鎖。':`${stars} 星過關，下一關已解鎖。`):'步數用完前要完成所有指定顏色數量；星星唔影響過關資格。');
+  const next=document.getElementById('nextBtn'),back=document.getElementById('resultBackBtn');if(isCustom){next.textContent='再玩一次（-1 ❤️）';back.textContent='自設關卡'}else{next.textContent=passed&&id<TOTAL_LEVELS?'下一關（-1 ❤️）':'再玩一次（-1 ❤️）';back.textContent='關卡地圖'}document.getElementById('resultModal').classList.remove('hidden')
+}
+function backToLevelsFromModal(){document.getElementById('resultModal').classList.add('hidden');if(game?.cfg?.custom)showCustomLevels();else showLevels()}
+function nextLevel(){const id=game.cfg.id,passed=game.passed,isCustom=!!game.cfg.custom;document.getElementById('resultModal').classList.add('hidden');if(isCustom)startCustomLevel(id);else if(passed&&id<TOTAL_LEVELS)startLevel(id+1);else startLevel(id)}
+function leaveGame(){if(resolving)return;const custom=!!game?.cfg?.custom;game=null;if(custom)showCustomLevels();else showLevels()}
+function setHint(s){document.getElementById('hint').textContent=s}
+function key(r,c){return r+','+c}function parseKey(k){const [r,c]=k.split(',').map(Number);return {r,c}}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function hasPossibleMove(){const {rows,cols}=game.cfg;for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)if(game.board[r][c])for(const [dr,dc] of [[1,0],[0,1]]){const rr=r+dr,cc=c+dc;if(rr<rows&&cc<cols&&game.board[rr][cc]){[game.board[r][c],game.board[rr][cc]]=[game.board[rr][cc],game.board[r][c]];const ok=findMatches().size>0;[game.board[r][c],game.board[rr][cc]]=[game.board[rr][cc],game.board[r][c]];if(ok)return true}}return false}
+function reshuffleBoard(){let positions=[],candies=[];for(let r=0;r<game.cfg.rows;r++)for(let c=0;c<game.cfg.cols;c++)if(game.board[r][c]){positions.push([r,c]);candies.push(game.board[r][c])}for(let tries=0;tries<100;tries++){shuffle(candies);positions.forEach(([r,c],i)=>game.board[r][c]=candies[i]);if(findMatches().size===0&&hasPossibleMove())return}}
+let toastTimer;function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),1900)}
+const sky=document.getElementById('sky');for(let i=0;i<16;i++){const d=document.createElement('div');d.className='bubble';const sz=18+Math.random()*74;d.style.width=d.style.height=sz+'px';d.style.left=Math.random()*100+'%';d.style.top=Math.random()*100+'%';sky.appendChild(d)}
+updateUI();setInterval(updateUI,1000);
+</script>
+</body>
+</html>
